@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
-`include "./inc/sm3_cfg"
+// `include "../rtl/inc/sm3_cfg"
+`include "sm3_cfg.v"
 //////////////////////////////////////////////////////////////////////////////////
 // Author:        ljgibbs / lf_gibbs@163.com
 // Create Date: 2020/07/21 
@@ -16,21 +17,24 @@
 module tb_sm3_pad_top (                 
 );
 
-//reg
-reg                     clk;
-reg                     rst_n;
+//logic
+logic                       clk;
+logic                       rst_n;
 
-reg [`INPT_DW1:0]       msg_inpt_d_i;
-reg [`INPT_BYTE_DW1:0]  msg_inpt_vld_byte_i;
-reg                     msg_inpt_vld_i;
-reg                     msg_inpt_lst_i;
+logic [`INPT_DW1:0]         msg_inpt_d_i;
+logic [`INPT_BYTE_DW1:0]    msg_inpt_vld_byte_i;
+logic                       msg_inpt_vld_i;
+logic                       msg_inpt_lst_i;
 
-reg                     pad_otpt_ena_i;
+logic                       pad_otpt_ena_i;
 
-wire                    msg_inpt_rdy_o;
-wire                    pad_otpt_d_o;
-wire                    pad_otpt_lst_o;
-wire                    pad_otpt_vld_o;
+logic                       msg_inpt_rdy_o;
+logic                       pad_otpt_d_o;
+logic                       pad_otpt_lst_o;
+logic                       pad_otpt_vld_o;
+
+//interface
+sm3_if sm3if();
 
 //uut
 sm3_pad_core U_sm3_pad_core(
@@ -49,6 +53,11 @@ sm3_pad_core U_sm3_pad_core(
     .pad_otpt_d_o           (pad_otpt_d_o           ),
     .pad_otpt_lst_o         (pad_otpt_lst_o         ),
     .pad_otpt_vld_o         (pad_otpt_vld_o         )
+);
+
+//uut with bus wrapper
+sm3_pad_core_wrapper U_sm3_pad_core_wrapper(
+    sm3if
 );
 
 initial begin
