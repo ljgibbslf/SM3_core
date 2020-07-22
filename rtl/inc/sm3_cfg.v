@@ -25,9 +25,10 @@
     `define     INPT_DW    64
 `endif
 
-`define INPT_DW1        (INPT_DW - 1)
-`define INPT_BYTE_DW1   (INPT_DW/8 - 1)
-`define INPT_BYTE_DW    (INPT_BYTE_DW1 + 1)
+// `define INPT_DW1        (INPT_DW - 1)
+`define INPT_DW1        (`INPT_DW - 1)
+`define INPT_BYTE_DW1   (`INPT_DW/8 - 1)
+`define INPT_BYTE_DW    (`INPT_BYTE_DW1 + 1)
 
 //定义 SM3 输出位宽
 // `define SM3_OTPT_DW_32

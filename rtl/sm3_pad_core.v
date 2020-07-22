@@ -81,8 +81,10 @@ wire                        add_new_blk_flg_ena;
 wire                        add_new_blk_flg_clr;
 
 //统计最后一个数据的有效字节数  cnt vld byte of the last inpt data
-wire [3:0]                  inpt_vld_byte_cnt;
+reg  [3:0]                  inpt_vld_byte_cnt;
 wire                        inpt_vld_byte_cmplt;                                 
+
+integer i;
 
 //流程状态机
 `define STT_W 9
