@@ -58,12 +58,12 @@ initial begin
     msg_inpt_vld_byte_i     =0;
     msg_inpt_vld_i          =0;
     msg_inpt_lst_i          =0;
-    pad_otpt_ena_i;         =0;
+    pad_otpt_ena_i          =0;
 
     #100;
     rst_n                   =1;
 
-    @(posedge clk)
+    @(posedge clk);
 
 end
 

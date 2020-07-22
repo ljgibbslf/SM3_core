@@ -103,8 +103,8 @@ localparam PAD_00_WAT_NEW_BLK       = `STT_W'h100;
 //对输入数据打拍  beat inpt signals
 always @(posedge clk or negedge rst_n) begin
     if(~rst_n) begin
-        msg_inpt_d_r1               <=  INPT_DW'b0;
-        msg_inpt_vld_byte_r1        <=  INPT_BYTE_DW'b0;
+        msg_inpt_d_r1               <=  `INPT_DW'b0;
+        msg_inpt_vld_byte_r1        <=  'b0;
         msg_inpt_vld_r1             <=  1'b0;
         msg_inpt_lst_r1             <=  1'b0;
     end else begin
