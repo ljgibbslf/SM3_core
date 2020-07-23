@@ -125,25 +125,25 @@ end
 always @(*) begin
     `ifdef SM3_INPT_DW_32
         case (inpt_vld_byte_cnt)
-            4'd0: lst_data_pad_mask      =   32'd8000_0000;
+            4'd0: lst_data_pad_mask      =   32'h8000_0000;
             4'd1: lst_data_pad_mask      =   32'h0080_0000;
             4'd2: lst_data_pad_mask      =   32'h0000_8000;
             4'd3: lst_data_pad_mask      =   32'h0000_0080;
             4'd4: lst_data_pad_mask      =   32'h0000_0000;
-            default: lst_data_pad_mask      =   32'd8000_0000;
+            default: lst_data_pad_mask      =   32'h8000_0000;
         endcase
     `elsif SM3_INPT_DW_64
         case (inpt_vld_byte_cnt)
-            4'd0: lst_data_pad_mask      =   64'd8000_0000_0000_0000;
+            4'd0: lst_data_pad_mask      =   64'h8000_0000_0000_0000;
             4'd1: lst_data_pad_mask      =   64'h0080_0000_0000_0000;
             4'd2: lst_data_pad_mask      =   64'h0000_8000_0000_0000;
             4'd3: lst_data_pad_mask      =   64'h0000_0080_0000_0000;
-            4'd4: lst_data_pad_mask      =   64'd0000_0000_8000_0000;
+            4'd4: lst_data_pad_mask      =   64'h0000_0000_8000_0000;
             4'd5: lst_data_pad_mask      =   64'h0000_0000_0080_0000;
             4'd6: lst_data_pad_mask      =   64'h0000_0000_0000_8000;
             4'd7: lst_data_pad_mask      =   64'h0000_0000_0000_0080;
             4'd8: lst_data_pad_mask      =   64'h0000_0000_0000_0000;
-            default: lst_data_pad_mask      =   64'd8000_0000_0000_0000;
+            default: lst_data_pad_mask      =   64'h8000_0000_0000_0000;
         endcase
     `endif
 end
@@ -190,7 +190,7 @@ always @(posedge clk or negedge rst_n) begin
     end
 end
 assign                  pad_00_wd_cntr_inpt_updt    = msg_inpt_vld_r1;
-assign                  pad_00_wd_cntr_pad_updt     = state == PAD_00_DATA || state == ADD_BLK_PAD_00;
+assign                  pad_00_wd_cntr_pad_updt     = state == PAD_10_DATA || state == PAD_00_DATA || state == ADD_BLK_PAD_00;
 assign                  pad_00_wd_cntr_rld          = pad_otpt_lst_o;
 
 
@@ -213,8 +213,10 @@ assign                  add_new_blk_flg_clr  = state == ADD_BLK_PAD_00;
 always @(*) begin
     case (state)
         IDLE: begin
-            if(msg_inpt_vld_i)
+            if(msg_inpt_vld_i && ~msg_inpt_lst_i)
                 nxt_state   =   INPT_DATA;
+            else if(msg_inpt_lst_i)
+                nxt_state   =   INPT_PAD_LST_DATA;
             else
                 nxt_state   =   IDLE;
         end
@@ -237,7 +239,7 @@ always @(*) begin
         PAD_10_DATA: begin//填充由1个1和若干个0组成的数据
             if(add_new_blk_flg)
                 nxt_state   =   ADD_BLK_PAD_00;
-            else if(inpt_wd_cntr[3:0] == PAD_BLK_WD_NUM_WTHT_LEN - INPT_WORD_NUM - 1'b1)
+            else if(pad_00_wd_cntr == INPT_WORD_NUM)
                 nxt_state   =   PAD_LEN_H;
             else 
                 nxt_state   =   PAD_00_DATA;

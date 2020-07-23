@@ -38,6 +38,12 @@ sm3_pad_core_wrapper U_sm3_pad_core_wrapper(
     sm3if
 );
 
+//monitor
+sm3_pad_mntr U_sm3_pad_mntr(
+    sm3if,
+    gldn_pttrn
+);
+
 initial begin
     sm3if.clk                     = 0;
     sm3if.rst_n                   = 0;
@@ -50,12 +56,17 @@ initial begin
     #100;
     sm3if.rst_n                   =1;
 
-    sm3_inpt_byte_num = 61'd10;
+    while (1) begin
+        sm3_inpt_byte_num = $urandom % (64*100) + 1;
 
-    @(posedge sm3if.clk);
-    task_pad_inpt_gntr(sm3_inpt_byte_num);
-    //生成 golden pattern
-    golden_pttrn_gntr(gldn_pttrn,sm3_inpt_byte_num);
+        @(posedge sm3if.clk);
+        task_pad_inpt_gntr(sm3_inpt_byte_num);
+        //生成 golden pattern
+        golden_pttrn_gntr(gldn_pttrn,sm3_inpt_byte_num);
+        wait(sm3if.pad_otpt_lst_o);
+        @(posedge sm3if.clk);
+    end
+    
 
 end
 
@@ -80,8 +91,8 @@ task automatic task_pad_inpt_gntr(
 
 
     //前 N-1 个周期的数据
+    sm3if.msg_inpt_vld_i = 1'b1;
     repeat(data_inpt_clk_num - 1'b1)begin
-        sm3if.msg_inpt_vld_i = 1'b1;
         @(posedge sm3if.clk);   
     end
     sm3if.msg_inpt_lst_i    = 1'b1;
@@ -127,14 +138,7 @@ task automatic task_pad_inpt_gntr(
 endtask //automatic
 
     
-
-//产生用于比较的图样，最后 512bit 输出
-function automatic void golden_pttrn_gntr(
-    ref     bit [31:0]  gldn_pttrn[15:0],
-    input   bit [60:0]  byte_num
-    );
-    
-    int unsigned lst_blk_byte_num;
+int unsigned lst_blk_byte_num;
     int unsigned lst_blk_word_num;
     int unsigned unalign_byte_num;
     int unsigned lst_blk_pad_00_byte_num;//最后一块中的填充数量
@@ -142,6 +146,15 @@ function automatic void golden_pttrn_gntr(
     longint unsigned bit_num;
     
     bit [31:0] lst_inpt_data;
+
+    bit        flg_new_pad_blk;
+//产生用于比较的图样，最后 512bit 输出
+function automatic void golden_pttrn_gntr(
+    ref     bit [31:0]  gldn_pttrn[15:0],
+    input   bit [60:0]  byte_num
+    );
+    
+    
     
     // bit [`INPT_BYTE_DW1:0] vld_byte_mask;
     unalign_byte_num    =   byte_num[1:0];
@@ -159,16 +172,21 @@ function automatic void golden_pttrn_gntr(
         lst_blk_pad_10_byte_num = 1;
         if(lst_blk_word_num < 14) begin
             lst_blk_pad_00_byte_num = 16 - 2 - lst_blk_pad_10_byte_num - lst_blk_word_num;
+            flg_new_pad_blk = 0;
         end else if(lst_blk_word_num == 16)begin//lst_blk_word_num == 16
             lst_blk_pad_00_byte_num = 13;
+            flg_new_pad_blk = 1;
         end else begin//lst_blk_word_num == 14/15
             lst_blk_pad_00_byte_num = 14;
+            flg_new_pad_blk = 1;
         end
     end else begin // 非对齐
         lst_blk_pad_10_byte_num = 0;
         if(lst_blk_word_num < 15) begin
+            flg_new_pad_blk = 0;
             lst_blk_pad_00_byte_num = 16 - 2  - lst_blk_word_num;
         end else begin//lst_blk_word_num == 15/16
+            flg_new_pad_blk = 1;
             lst_blk_pad_00_byte_num = 14;
         end
     end
@@ -182,20 +200,32 @@ function automatic void golden_pttrn_gntr(
 
     //填充pattern
     foreach(gldn_pttrn[i])
-        if(i < lst_blk_word_num - 1)
-            gldn_pttrn[i] = DATA_INIT_PTTRN[31:0];
-        else if (i < lst_blk_word_num) 
-            gldn_pttrn[i] = lst_inpt_data;
-        else if (i < lst_blk_word_num + lst_blk_pad_10_byte_num)
-            gldn_pttrn[i] = 32'h8000_0000;
-        else if (i < lst_blk_word_num + lst_blk_pad_10_byte_num + lst_blk_pad_00_byte_num)
-            gldn_pttrn[i] = 32'h0000_0000;
-        else if (i == 14)
-            gldn_pttrn[i] = bit_num[63-:32];
-        else if (i == 15)
-            gldn_pttrn[i] = bit_num[31-:32];
-        else
-            gldn_pttrn[i] = 32'hFFFF_FFFF;
+        if(flg_new_pad_blk)begin
+            if (i == 0 && lst_blk_pad_00_byte_num == 13)
+                gldn_pttrn[i] = 32'h8000_0000;
+            else if (i == 14)
+                gldn_pttrn[i] = bit_num[63-:32];
+            else if (i == 15)
+                gldn_pttrn[i] = bit_num[31-:32];
+            else
+                gldn_pttrn[i] = 32'h0000_0000;
+        end else begin
+            if(i < lst_blk_word_num - 1)
+                gldn_pttrn[i] = DATA_INIT_PTTRN[31:0];
+            else if (i < lst_blk_word_num) 
+                gldn_pttrn[i] = lst_inpt_data;
+            else if (i < lst_blk_word_num + lst_blk_pad_10_byte_num)
+                gldn_pttrn[i] = 32'h8000_0000;
+            else if (i < lst_blk_word_num + lst_blk_pad_10_byte_num + lst_blk_pad_00_byte_num)
+                gldn_pttrn[i] = 32'h0000_0000;
+            else if (i == 14)
+                gldn_pttrn[i] = bit_num[63-:32];
+            else if (i == 15)
+                gldn_pttrn[i] = bit_num[31-:32];
+            else
+                gldn_pttrn[i] = 32'hFFFF_FFFF;
+        end
+        
     
 endfunction
 
