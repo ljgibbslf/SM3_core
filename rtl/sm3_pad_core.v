@@ -63,6 +63,9 @@ reg [15:0]                  inpt_wd_cntr;
 wire                        inpt_wd_cntr_add;
 wire                        inpt_wd_cntr_clr;
 
+//输入字节数统计 count inpt byte
+wire[60:0]                  inpt_byte_cntr;
+
 //填充字数统计 count padded words
 reg [4:0]                   pad_00_wd_cntr;
 wire                        pad_00_wd_cntr_inpt_updt; //随数据输入递减 dec with data inpt
@@ -166,9 +169,11 @@ always @(posedge clk or negedge rst_n) begin
         inpt_wd_cntr              <= 16'b0;
     end
 end
-assign                  inpt_wd_cntr_add  = msg_inpt_vld_r1;
-assign                  inpt_wd_cntr_clr  = pad_otpt_lst_o;
-assign                  inpt_bit_cntr               =    {43'd0,inpt_wd_cntr,5'd0};
+assign                  inpt_wd_cntr_add    = msg_inpt_vld_r1;
+assign                  inpt_wd_cntr_clr    = pad_otpt_lst_o;
+
+assign                  inpt_byte_cntr      =   {inpt_wd_cntr,2'd0} + inpt_vld_byte_cnt - {INPT_WORD_NUM,2'd0};
+assign                  inpt_bit_cntr       =   {inpt_byte_cntr,3'd0};
 
 //填充字数统计
 always @(posedge clk or negedge rst_n) begin
