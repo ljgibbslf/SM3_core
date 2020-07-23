@@ -26,7 +26,7 @@ interface sm3_if;
     logic                       pad_otpt_ena_i;
 
     logic                       msg_inpt_rdy_o;
-    logic                       pad_otpt_d_o;
+    logic [`INPT_DW1:0]         pad_otpt_d_o;
     logic                       pad_otpt_lst_o;
     logic                       pad_otpt_vld_o;
 
