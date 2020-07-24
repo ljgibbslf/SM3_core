@@ -78,11 +78,6 @@ wire [63:0]                 inpt_bit_cntr;
 //填充后数据输出使能
 wire                        pad_otpt_ena;
 
-//标记填充需要在数据块基础上新增块 flag: new pad block need add on original msg
-reg                         add_new_blk_flg;
-wire                        add_new_blk_flg_ena;
-wire                        add_new_blk_flg_clr;
-
 //统计最后一个数据的有效字节数  cnt vld byte of the last inpt data
 reg  [3:0]                  inpt_vld_byte_cnt;
 wire                        inpt_vld_byte_cmplt;                                 
@@ -90,7 +85,7 @@ wire                        inpt_vld_byte_cmplt;
 integer i;
 
 //流程状态机
-`define STT_W 9
+`define STT_W 10
 `define STT_W1 `STT_W - 1
 
 reg [`STT_W1:0]   state;
@@ -105,6 +100,7 @@ localparam PAD_LEN_H                = `STT_W'h20;
 localparam PAD_LEN_L                = `STT_W'h40;
 localparam ADD_BLK_PAD_00           = `STT_W'h80;
 localparam PAD_00_WAT_NEW_BLK       = `STT_W'h100;
+localparam PAD_10_WAT_NEW_BLK       = `STT_W'h200;
 
 //对输入数据打拍  beat inpt signals
 always @(posedge clk or negedge rst_n) begin
@@ -193,29 +189,13 @@ assign                  pad_00_wd_cntr_inpt_updt    = msg_inpt_vld_r1;
 assign                  pad_00_wd_cntr_pad_updt     = state == PAD_10_DATA || state == PAD_00_DATA || state == ADD_BLK_PAD_00;
 assign                  pad_00_wd_cntr_rld          = pad_otpt_lst_o;
 
-
-
-//标记填充需要在数据块基础上新增块
-always @(posedge clk or negedge rst_n) begin
-    if(~rst_n) begin
-        add_new_blk_flg              <= 'b0;
-    end else if(add_new_blk_flg_ena)begin
-        add_new_blk_flg              <= 1'b1;
-    end else if(add_new_blk_flg_clr)begin
-        add_new_blk_flg              <= 'b0;
-    end
-end
-//置起信号 last信号输入时，输入数据为 14 + 16 * N word
-assign                  add_new_blk_flg_ena  = msg_inpt_lst_i && inpt_wd_cntr[3:0] == (5'h10 - INPT_WORD_NUM); 
-assign                  add_new_blk_flg_clr  = state == ADD_BLK_PAD_00;
-
 //实现流程状态机
 always @(*) begin
     case (state)
         IDLE: begin
             if(msg_inpt_vld_i && ~msg_inpt_lst_i)
                 nxt_state   =   INPT_DATA;
-            else if(msg_inpt_lst_i)
+            else if(msg_inpt_lst_i)//fix 数据周期为1的情况
                 nxt_state   =   INPT_PAD_LST_DATA;
             else
                 nxt_state   =   IDLE;
@@ -227,8 +207,13 @@ always @(*) begin
                 nxt_state   =   INPT_DATA;
         end
         INPT_PAD_LST_DATA: begin//根据最后一个输入数据的情况，确定填充策略
-            if(inpt_vld_byte_cmplt)
-                nxt_state   =   PAD_10_DATA;
+            if(inpt_vld_byte_cmplt) begin
+                if(inpt_wd_cntr[3:0] == 4'd0 && ~(inpt_wd_cntr == 16'd0))begin
+                    nxt_state   =   PAD_10_WAT_NEW_BLK;//填充以'1'为首的新块
+                end else begin//本块中填1
+                    nxt_state   =   PAD_10_DATA;
+                end
+            end
             else if(inpt_wd_cntr[3:0] == PAD_BLK_WD_NUM_WTHT_LEN - INPT_WORD_NUM)//14 - 1/2
                 nxt_state   =   PAD_LEN_H;
             else if(inpt_wd_cntr[3:0] < PAD_BLK_WD_NUM_WTHT_LEN - INPT_WORD_NUM)
@@ -237,24 +222,30 @@ always @(*) begin
                 nxt_state   =   ADD_BLK_PAD_00;
         end
         PAD_10_DATA: begin//填充由1个1和若干个0组成的数据
-            if(add_new_blk_flg)
-                nxt_state   =   ADD_BLK_PAD_00;
-            else if(pad_00_wd_cntr == INPT_WORD_NUM)
-                nxt_state   =   PAD_LEN_H;
-            else 
-                nxt_state   =   PAD_00_DATA;
+            if(inpt_wd_cntr[3:0] < PAD_BLK_WD_NUM_WTHT_LEN - INPT_WORD_NUM)//14-2(64b)
+                nxt_state   =   PAD_00_DATA;//直接填0
+            else if(inpt_wd_cntr[3:0] == PAD_BLK_WD_NUM_WTHT_LEN - INPT_WORD_NUM)
+                nxt_state   =   PAD_LEN_H;//填充长度
+            else begin //>PAD_BLK_WD_NUM_WTHT_LEN - INPT_WORD_NUM
+                if(inpt_wd_cntr[3:0] == PAD_BLK_WD_NUM_WTHT_LEN - 1'b1)
+                    nxt_state   =   ADD_BLK_PAD_00;//（32位专用）
+                else
+                    nxt_state   =   PAD_00_WAT_NEW_BLK;
+            end
         end
-        ADD_BLK_PAD_00:begin//为新增的填充块填0
-            if(pad_00_wd_cntr == INPT_WORD_NUM) //32位时填充2个周期，64位时填充1个周期
-                nxt_state   =   PAD_00_WAT_NEW_BLK;
-            else
-                nxt_state   =   ADD_BLK_PAD_00;
+        ADD_BLK_PAD_00:begin//在新增的填充块之前补一个0字（32位专用）
+            nxt_state   =   PAD_00_WAT_NEW_BLK;
         end
         PAD_00_WAT_NEW_BLK: 
             if(~pad_otpt_ena_i) //等待上一块处理完毕后 开始新的一块输出
                 nxt_state   =   PAD_00_WAT_NEW_BLK;
             else
                 nxt_state   =   PAD_00_DATA;
+        PAD_10_WAT_NEW_BLK: //与 PAD_00_WAT_NEW_BLK 状态的区别在于，新块跳转 PAD_10_DATA 添加 10 
+            if(~pad_otpt_ena_i) 
+                nxt_state   =   PAD_10_WAT_NEW_BLK;
+            else
+                nxt_state   =   PAD_10_DATA;
         PAD_00_DATA: //填充全 0 数据
             if(pad_00_wd_cntr == INPT_WORD_NUM)
                 nxt_state   =   PAD_LEN_H;

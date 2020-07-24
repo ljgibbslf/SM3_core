@@ -16,8 +16,8 @@
 // `define DESIGN_SYNT
 
 //定义 SM3 输入位宽
-// `define SM3_INPT_DW_32
-`define SM3_INPT_DW_64
+`define SM3_INPT_DW_32
+// `define SM3_INPT_DW_64
 
 `ifdef SM3_INPT_DW_32
     `define     INPT_DW    32

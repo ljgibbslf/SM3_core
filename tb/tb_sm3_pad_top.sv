@@ -57,6 +57,9 @@ initial begin
     sm3if.rst_n                   =1;
 
     while (1) begin
+        //complete random
+        //sm3_inpt_byte_num = $urandom % (61'h1fff_ffff_ffff_ffff) + 1;
+        //medium random
         sm3_inpt_byte_num = $urandom % (64*100) + 1;
 
         @(posedge sm3if.clk);

@@ -68,6 +68,7 @@ always @(posedge sm3_pad_reg_cmpr) begin
     end else begin
         fail_cnt++;
         $display("Err:@%0t:check fail and fail %d times",$time,fail_cnt);
+        $stop;
     end
 end
 
