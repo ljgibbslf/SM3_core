@@ -102,35 +102,9 @@ task automatic task_pad_inpt_gntr(
 
     //准备最后一个周期的数据
     `ifdef SM3_INPT_DW_32
-        sm3if.msg_inpt_vld_byte_i =     unalign_byte_num == 2'd0 ? 4'b1111
-                                    :   unalign_byte_num == 2'd1 ? 4'b1000
-                                    :   unalign_byte_num == 2'd2 ? 4'b1100
-                                    :   unalign_byte_num == 2'd3 ? 4'b1110
-                                    :   4'b1111;
-        sm3if.msg_inpt_d_i =            unalign_byte_num == 2'd0 ? {DATA_INIT_PTTRN}
-                                    :   unalign_byte_num == 2'd1 ? {DATA_INIT_PTTRN[31-: 8], 24'd0}
-                                    :   unalign_byte_num == 2'd2 ? {DATA_INIT_PTTRN[31-:16], 16'd0}
-                                    :   unalign_byte_num == 2'd3 ? {DATA_INIT_PTTRN[31-:24],  8'd0}
-                                    :   DATA_INIT_PTTRN;
+        lst_data_gntr_32(sm3if.msg_inpt_d_i,sm3if.msg_inpt_vld_byte_i,unalign_byte_num);
     `elsif SM3_INPT_DW_64
-        sm3if.msg_inpt_vld_byte_i =     unalign_byte_num == 3'd0 ? 8'b1111_1111
-                                    :   unalign_byte_num == 3'd1 ? 8'b1000_0000
-                                    :   unalign_byte_num == 3'd2 ? 8'b1100_0000
-                                    :   unalign_byte_num == 3'd3 ? 8'b1110_0000
-                                    :   unalign_byte_num == 3'd4 ? 8'b1111_0000
-                                    :   unalign_byte_num == 3'd5 ? 8'b1111_1000
-                                    :   unalign_byte_num == 3'd6 ? 8'b1111_1100
-                                    :   unalign_byte_num == 3'd7 ? 8'b1111_1110
-                                    :   8'b1111_1111;
-        sm3if.msg_inpt_d_i =            unalign_byte_num == 3'd0 ? {DATA_INIT_PTTRN}
-                                    :   unalign_byte_num == 3'd1 ? {DATA_INIT_PTTRN[63-: 8], 56'd0}
-                                    :   unalign_byte_num == 3'd2 ? {DATA_INIT_PTTRN[63-:16], 48'd0}
-                                    :   unalign_byte_num == 3'd3 ? {DATA_INIT_PTTRN[63-:24], 40'd0}
-                                    :   unalign_byte_num == 3'd4 ? {DATA_INIT_PTTRN[63-:32], 32'd0}
-                                    :   unalign_byte_num == 3'd5 ? {DATA_INIT_PTTRN[63-:40], 24'd0}
-                                    :   unalign_byte_num == 3'd6 ? {DATA_INIT_PTTRN[63-:48], 16'd0}
-                                    :   unalign_byte_num == 3'd7 ? {DATA_INIT_PTTRN[63-:56],  8'd0}
-                                    :   DATA_INIT_PTTRN;
+        lst_data_gntr_64(sm3if.msg_inpt_d_i,sm3if.msg_inpt_vld_byte_i,unalign_byte_num);
     `endif
     
     @(posedge sm3if.clk);   
@@ -141,7 +115,13 @@ task automatic task_pad_inpt_gntr(
 endtask //automatic
 
     
-int unsigned lst_blk_byte_num;
+//产生用于比较的图样，最后 512bit 输出
+function automatic void golden_pttrn_gntr(
+    ref     bit [31:0]  gldn_pttrn[15:0],
+    input   bit [60:0]  byte_num
+    );
+    
+    int unsigned lst_blk_byte_num;
     int unsigned lst_blk_word_num;
     int unsigned unalign_byte_num;
     int unsigned lst_blk_pad_00_byte_num;//最后一块中的填充数量
@@ -151,13 +131,6 @@ int unsigned lst_blk_byte_num;
     bit [31:0] lst_inpt_data;
 
     bit        flg_new_pad_blk;
-//产生用于比较的图样，最后 512bit 输出
-function automatic void golden_pttrn_gntr(
-    ref     bit [31:0]  gldn_pttrn[15:0],
-    input   bit [60:0]  byte_num
-    );
-    
-    
     
     // bit [`INPT_BYTE_DW1:0] vld_byte_mask;
     unalign_byte_num    =   byte_num[1:0];
@@ -194,6 +167,7 @@ function automatic void golden_pttrn_gntr(
         end
     end
 
+    //最后一个周期的数据
     lst_inpt_data   =               unalign_byte_num == 2'd0 ? {DATA_INIT_PTTRN}
                                 :   unalign_byte_num == 2'd1 ? {DATA_INIT_PTTRN[31-: 8],1'b1, 23'd0}
                                 :   unalign_byte_num == 2'd2 ? {DATA_INIT_PTTRN[31-:16],1'b1, 15'd0}
@@ -203,7 +177,7 @@ function automatic void golden_pttrn_gntr(
 
     //填充pattern
     foreach(gldn_pttrn[i])
-        if(flg_new_pad_blk)begin
+        if(flg_new_pad_blk)begin//增加填充块的情况
             if (i == 0 && lst_blk_pad_00_byte_num == 13)
                 gldn_pttrn[i] = 32'h8000_0000;
             else if (i == 14)
@@ -212,7 +186,7 @@ function automatic void golden_pttrn_gntr(
                 gldn_pttrn[i] = bit_num[31-:32];
             else
                 gldn_pttrn[i] = 32'h0000_0000;
-        end else begin
+        end else begin//在原有最后一块的基础上填充
             if(i < lst_blk_word_num - 1)
                 gldn_pttrn[i] = DATA_INIT_PTTRN[31:0];
             else if (i < lst_blk_word_num) 
@@ -229,7 +203,53 @@ function automatic void golden_pttrn_gntr(
                 gldn_pttrn[i] = 32'hFFFF_FFFF;
         end
         
-    
 endfunction
 
+//32bit 生成最后一个周期数据
+`ifdef SM3_INPT_DW_32
+function automatic void lst_data_gntr_32(
+    ref logic [31:0]  lst_data, 
+    ref logic [ 3:0]  lst_vld_byte,
+    input bit [2:0]   unalign_byte_num
+    );
+        lst_vld_byte                =   unalign_byte_num == 2'd0 ? 4'b1111
+                                    :   unalign_byte_num == 2'd1 ? 4'b1000
+                                    :   unalign_byte_num == 2'd2 ? 4'b1100
+                                    :   unalign_byte_num == 2'd3 ? 4'b1110
+                                    :   4'b1111;
+        lst_data                    =   unalign_byte_num == 2'd0 ? {DATA_INIT_PTTRN}
+                                    :   unalign_byte_num == 2'd1 ? {DATA_INIT_PTTRN[31-: 8], 24'd0}
+                                    :   unalign_byte_num == 2'd2 ? {DATA_INIT_PTTRN[31-:16], 16'd0}
+                                    :   unalign_byte_num == 2'd3 ? {DATA_INIT_PTTRN[31-:24],  8'd0}
+                                    :   DATA_INIT_PTTRN;
+    
+endfunction
+`elsif SM3_INPT_DW_64
+//64bit 生成最后一个周期数据
+function automatic void lst_data_gntr_64(
+    ref logic [63:0]  lst_data, 
+    ref logic [ 7:0]  lst_vld_byte,
+    input bit [3:0]   unalign_byte_num
+    );
+        lst_vld_byte =                  unalign_byte_num == 3'd0 ? 8'b1111_1111
+                                    :   unalign_byte_num == 3'd1 ? 8'b1000_0000
+                                    :   unalign_byte_num == 3'd2 ? 8'b1100_0000
+                                    :   unalign_byte_num == 3'd3 ? 8'b1110_0000
+                                    :   unalign_byte_num == 3'd4 ? 8'b1111_0000
+                                    :   unalign_byte_num == 3'd5 ? 8'b1111_1000
+                                    :   unalign_byte_num == 3'd6 ? 8'b1111_1100
+                                    :   unalign_byte_num == 3'd7 ? 8'b1111_1110
+                                    :   8'b1111_1111;
+        lst_data =                      unalign_byte_num == 3'd0 ? {DATA_INIT_PTTRN}
+                                    :   unalign_byte_num == 3'd1 ? {DATA_INIT_PTTRN[63-: 8], 56'd0}
+                                    :   unalign_byte_num == 3'd2 ? {DATA_INIT_PTTRN[63-:16], 48'd0}
+                                    :   unalign_byte_num == 3'd3 ? {DATA_INIT_PTTRN[63-:24], 40'd0}
+                                    :   unalign_byte_num == 3'd4 ? {DATA_INIT_PTTRN[63-:32], 32'd0}
+                                    :   unalign_byte_num == 3'd5 ? {DATA_INIT_PTTRN[63-:40], 24'd0}
+                                    :   unalign_byte_num == 3'd6 ? {DATA_INIT_PTTRN[63-:48], 16'd0}
+                                    :   unalign_byte_num == 3'd7 ? {DATA_INIT_PTTRN[63-:56],  8'd0}
+                                    :   DATA_INIT_PTTRN;
+    
+endfunction
+`endif
 endmodule
