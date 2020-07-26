@@ -15,28 +15,39 @@
 // Revision 0.01 - File Created
 //////////////////////////////////////////////////////////////////////////////////
 interface sm3_if;
-    logic                       clk;
-    logic                       rst_n;
+logic                       clk;
+logic                       rst_n;
+logic [`INPT_DW1:0]         msg_inpt_d;
+logic [`INPT_BYTE_DW1:0]    msg_inpt_vld_byte;
+logic                       msg_inpt_vld;
+logic                       msg_inpt_lst;
+logic                       msg_inpt_rdy;
 
-    logic [`INPT_DW1:0]         msg_inpt_d_i;
-    logic [`INPT_BYTE_DW1:0]    msg_inpt_vld_byte_i;
-    logic                       msg_inpt_vld_i;
-    logic                       msg_inpt_lst_i;
+logic                       pad_otpt_ena;
+logic [`INPT_DW1:0]         pad_otpt_d;
+logic                       pad_otpt_lst;
+logic                       pad_otpt_vld;
 
-    logic                       pad_otpt_ena_i;
+logic                       expnd_otpt_ena;
+logic [`INPT_DW1:0]         expnd_otpt_wj; 
+logic [`INPT_DW1:0]         expnd_otpt_wjj; 
+logic                       expnd_otpt_lst;
+logic                       expnd_otpt_vld; 
 
-    logic                       msg_inpt_rdy_o;
-    logic [`INPT_DW1:0]         pad_otpt_d_o;
-    logic                       pad_otpt_lst_o;
-    logic                       pad_otpt_vld_o;
+modport PAD (
+    input clk,rst_n,msg_inpt_d,msg_inpt_vld_byte,msg_inpt_vld,msg_inpt_lst,pad_otpt_ena,
+    output msg_inpt_rdy,pad_otpt_d,pad_otpt_lst,pad_otpt_vld 
+);
 
-    modport PAD (
-        input clk,rst_n,msg_inpt_d_i,msg_inpt_vld_byte_i,msg_inpt_vld_i,msg_inpt_lst_i,pad_otpt_ena_i,
-        output msg_inpt_rdy_o,pad_otpt_d_o,pad_otpt_lst_o,pad_otpt_vld_o 
-    );
+modport MONITOR (
+    input clk,rst_n,msg_inpt_d,msg_inpt_vld_byte,msg_inpt_vld,msg_inpt_lst,pad_otpt_ena,
+    msg_inpt_rdy,pad_otpt_d,pad_otpt_lst,pad_otpt_vld 
+);
 
-    modport MONITOR (
-        input clk,rst_n,msg_inpt_d_i,msg_inpt_vld_byte_i,msg_inpt_vld_i,msg_inpt_lst_i,pad_otpt_ena_i,
-        msg_inpt_rdy_o,pad_otpt_d_o,pad_otpt_lst_o,pad_otpt_vld_o 
-    );
+modport EXPND (
+    input clk,rst_n,expnd_otpt_ena,pad_otpt_d,pad_otpt_lst,pad_otpt_vld,
+    output expnd_otpt_wj,expnd_otpt_wjj,expnd_otpt_lst,expnd_otpt_vld,pad_otpt_ena
+);
+
+
 endinterface //sm3_if
