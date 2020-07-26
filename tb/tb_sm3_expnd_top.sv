@@ -13,7 +13,7 @@
 // Revision:
 // Revision 0.01 - File Created
 //////////////////////////////////////////////////////////////////////////////////
-module tb_sm3_pad_top (                 
+module tb_sm3_expnd_top (                 
 );
 
 `ifdef SM3_INPT_DW_32
@@ -32,8 +32,13 @@ bit [60:0]  sm3_inpt_byte_num;
 //interface
 sm3_if sm3if();
 
-//uut with bus wrapper
+//sm3_pad with bus wrapper
 sm3_pad_core_wrapper U_sm3_pad_core_wrapper(
+    sm3if
+);
+
+//sm3_expand with bus wrapper
+sm3_expnd_core_wrapper U_sm3_expnd_core_wrapper(
     sm3if
 );
 
@@ -51,21 +56,19 @@ initial begin
     sm3if.msg_inpt_vld          = 0;
     sm3if.msg_inpt_lst          = 0;
     // sm3if.pad_otpt_ena          = 1;//填充模块使能由扩展模块给出
+    sm3if.expnd_otpt_ena          = 1;//扩展模块使能置高
 
     #100;
     sm3if.rst_n                   =1;
 
-    while (1) begin
+    repeat (1) begin
         //complete random
         //sm3_inpt_byte_num = $urandom % (61'h1fff_ffff_ffff_ffff) + 1;
         //medium random
-        sm3_inpt_byte_num = $urandom % (64*100) + 1;
+        // sm3_inpt_byte_num = $urandom % (64*100) + 1;
 
         @(posedge sm3if.clk);
-        task_pad_inpt_gntr(sm3_inpt_byte_num);
-        //生成 golden pattern
-        golden_pttrn_gntr(gldn_pttrn,sm3_inpt_byte_num);
-        wait(sm3if.pad_otpt_lst);
+        task_pad_inpt_gntr_exmpl0();
         @(posedge sm3if.clk);
     end
     
@@ -113,10 +116,23 @@ task automatic task_pad_inpt_gntr(
     
 endtask //automatic
 
+//产生填充模块输入，采用示例输入 'abc'
+task automatic task_pad_inpt_gntr_exmpl0();
+
+    
+    sm3if.msg_inpt_vld      = 1'b1;
+    sm3if.msg_inpt_lst      = 1'b1;
+    sm3if.msg_inpt_d        = 32'h6162_6300;
+    sm3if.msg_inpt_vld_byte = 4'b1110;
+    @(posedge sm3if.clk);   
+    sm3if.msg_inpt_vld    = 1'b0;
+    sm3if.msg_inpt_lst    = 1'b0;
+    sm3if.msg_inpt_d      = DATA_INIT_PTTRN;
+    
+endtask //automatic
     
 //产生用于比较的图样，最后 512bit 输出
 function automatic void golden_pttrn_gntr(
-    ref     bit [31:0]  gldn_pttrn[15:0],
     input   bit [60:0]  byte_num
     );
     
