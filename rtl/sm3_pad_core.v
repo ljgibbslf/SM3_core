@@ -8,7 +8,7 @@
 // Module Name: sm3_pad_core
 // Description:
 //      SM3 填充模块-SM3 填充核心单元
-//      输入位宽：INPT_DW1 定义
+//      输入位宽：INPT_DW1 定义，支持32/64
 //      输出位宽：与输入位宽一致
 // Dependencies: 
 //      inc/sm3_cfg.v

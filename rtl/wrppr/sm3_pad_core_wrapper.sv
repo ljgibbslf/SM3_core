@@ -6,7 +6,7 @@
 // Design Name: sm3
 // Module Name: sm3_pad_core_wrapper
 // Description:
-//      sm3_pad_core 封装
+//      sm3_pad_core 的 SV 封装
 //          封装 sm3_if 总线接口，类型为 PAD
 // Dependencies: 
 //      inc/sm3_cfg.v
