@@ -47,11 +47,11 @@ sm3_pad_mntr U_sm3_pad_mntr(
 initial begin
     sm3if.clk                     = 0;
     sm3if.rst_n                   = 0;
-    sm3if.msg_inpt_d_i            = DATA_INIT_PTTRN;
-    sm3if.msg_inpt_vld_byte_i     = 0;
-    sm3if.msg_inpt_vld_i          = 0;
-    sm3if.msg_inpt_lst_i          = 0;
-    sm3if.pad_otpt_ena_i          = 1;//置高填充模块输出使能
+    sm3if.msg_inpt_d            = DATA_INIT_PTTRN;
+    sm3if.msg_inpt_vld_byte     = 0;
+    sm3if.msg_inpt_vld          = 0;
+    sm3if.msg_inpt_lst          = 0;
+    sm3if.pad_otpt_ena          = 1;//置高填充模块输出使能
 
     #100;
     sm3if.rst_n                   =1;
@@ -66,7 +66,7 @@ initial begin
         task_pad_inpt_gntr(sm3_inpt_byte_num);
         //生成 golden pattern
         golden_pttrn_gntr(gldn_pttrn,sm3_inpt_byte_num);
-        wait(sm3if.pad_otpt_lst_o);
+        wait(sm3if.pad_otpt_lst);
         @(posedge sm3if.clk);
     end
     
@@ -94,23 +94,23 @@ task automatic task_pad_inpt_gntr(
 
 
     //前 N-1 个周期的数据
-    sm3if.msg_inpt_vld_i = 1'b1;
+    sm3if.msg_inpt_vld = 1'b1;
     repeat(data_inpt_clk_num - 1'b1)begin
         @(posedge sm3if.clk);   
     end
-    sm3if.msg_inpt_lst_i    = 1'b1;
+    sm3if.msg_inpt_lst    = 1'b1;
 
     //准备最后一个周期的数据
     `ifdef SM3_INPT_DW_32
-        lst_data_gntr_32(sm3if.msg_inpt_d_i,sm3if.msg_inpt_vld_byte_i,unalign_byte_num);
+        lst_data_gntr_32(sm3if.msg_inpt_d,sm3if.msg_inpt_vld_byte,unalign_byte_num);
     `elsif SM3_INPT_DW_64
-        lst_data_gntr_64(sm3if.msg_inpt_d_i,sm3if.msg_inpt_vld_byte_i,unalign_byte_num);
+        lst_data_gntr_64(sm3if.msg_inpt_d,sm3if.msg_inpt_vld_byte,unalign_byte_num);
     `endif
     
     @(posedge sm3if.clk);   
-    sm3if.msg_inpt_vld_i    = 1'b0;
-    sm3if.msg_inpt_lst_i    = 1'b0;
-    sm3if.msg_inpt_d_i      = DATA_INIT_PTTRN;
+    sm3if.msg_inpt_vld    = 1'b0;
+    sm3if.msg_inpt_lst    = 1'b0;
+    sm3if.msg_inpt_d      = DATA_INIT_PTTRN;
     
 endtask //automatic
 

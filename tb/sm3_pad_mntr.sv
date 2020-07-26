@@ -35,11 +35,11 @@ always @(posedge sm3if.clk or negedge sm3if.rst_n) begin
         sm3_pad_reg_cmpr    <=  1'b0;
         sm3_pad_reg_init    <=  1'b0;
     end else begin
-        sm3_pad_reg_cmpr    <=  sm3if.pad_otpt_lst_o;
+        sm3_pad_reg_cmpr    <=  sm3if.pad_otpt_lst;
         sm3_pad_reg_init    <=  sm3_pad_reg_cmpr;
     end
 end
-assign          sm3_pad_reg_shft    =  sm3if.pad_otpt_vld_o;
+assign          sm3_pad_reg_shft    =  sm3if.pad_otpt_vld;
 
 //shift reg pad data 
 always @(posedge sm3if.clk or negedge sm3if.rst_n) begin
@@ -47,9 +47,9 @@ always @(posedge sm3if.clk or negedge sm3if.rst_n) begin
         sm3_pad_lst_blk_reg    <=  512'b0;
     end else if(sm3_pad_reg_shft)begin
         `ifdef SM3_INPT_DW_32
-            sm3_pad_lst_blk_reg    <=  {sm3_pad_lst_blk_reg[(511-32):0],sm3if.pad_otpt_d_o};
+            sm3_pad_lst_blk_reg    <=  {sm3_pad_lst_blk_reg[(511-32):0],sm3if.pad_otpt_d};
         `elsif SM3_INPT_DW_64
-            sm3_pad_lst_blk_reg    <=  {sm3_pad_lst_blk_reg[(511-64):0],sm3if.pad_otpt_d_o};
+            sm3_pad_lst_blk_reg    <=  {sm3_pad_lst_blk_reg[(511-64):0],sm3if.pad_otpt_d};
         `endif
     end else if(sm3_pad_reg_init)begin
         sm3_pad_lst_blk_reg    <=  512'b0;

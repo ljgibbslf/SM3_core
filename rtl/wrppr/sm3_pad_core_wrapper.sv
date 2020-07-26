@@ -21,18 +21,18 @@ sm3_pad_core U_sm3_pad_core(
     .clk                    (sm3if.clk                    ),
     .rst_n                  (sm3if.rst_n                  ),
 
-    .msg_inpt_d_i           (sm3if.msg_inpt_d_i           ),
-    .msg_inpt_vld_byte_i    (sm3if.msg_inpt_vld_byte_i    ),
-    .msg_inpt_vld_i         (sm3if.msg_inpt_vld_i         ),
-    .msg_inpt_lst_i         (sm3if.msg_inpt_lst_i         ),
+    .msg_inpt_d_i           (sm3if.msg_inpt_d             ),
+    .msg_inpt_vld_byte_i    (sm3if.msg_inpt_vld_byte      ),
+    .msg_inpt_vld_i         (sm3if.msg_inpt_vld           ),
+    .msg_inpt_lst_i         (sm3if.msg_inpt_lst           ),
 
-    .pad_otpt_ena_i         (sm3if.pad_otpt_ena_i         ),
+    .pad_otpt_ena_i         (sm3if.pad_otpt_ena           ),
 
-    .msg_inpt_rdy_o         (sm3if.msg_inpt_rdy_o         ),
+    .msg_inpt_rdy_o         (sm3if.msg_inpt_rdy           ),
 
-    .pad_otpt_d_o           (sm3if.pad_otpt_d_o           ),
-    .pad_otpt_lst_o         (sm3if.pad_otpt_lst_o         ),
-    .pad_otpt_vld_o         (sm3if.pad_otpt_vld_o         )
+    .pad_otpt_d_o           (sm3if.pad_otpt_d             ),
+    .pad_otpt_lst_o         (sm3if.pad_otpt_lst           ),
+    .pad_otpt_vld_o         (sm3if.pad_otpt_vld           )
 );   
     
 endmodule
