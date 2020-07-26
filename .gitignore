@@ -1,1 +1,4 @@
 run/sm3_core/*
+run/run_sim.log
+run/run.log
+run/vsim.wlf
