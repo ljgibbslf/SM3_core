@@ -57,32 +57,34 @@ always @(posedge sm3if.clk or negedge sm3if.rst_n) begin
 end
 
 //compare with golden pattern
-always @(posedge sm3_pad_reg_cmpr) begin
-    total_cnt++;
-    $display("Mess:@%0t:result compare %d times",$time,total_cnt);
-    foreach(gldn_pttrn[i])
-        sm3_gldn_pttrn_reg[511 -32*i-:32] = gldn_pttrn[i];//do a copy to a ref array .hhh
-    
-    // if (sm3_gldn_pttrn_reg == sm3_pad_lst_blk_reg) begin
-    //     ok_cnt++;
-    //     $display("Mess:@%0t:check ok and ok %d times",$time,ok_cnt);
-    // end else begin
-    //     fail_cnt++;
-    //     $display("Err:@%0t:check fail and fail %d times",$time,fail_cnt);
-    //     $stop;
-    // end
+`ifdef SM3_PAD_SIM_DBG
+    always @(posedge sm3_pad_reg_cmpr) begin
+        total_cnt++;
+        $display("Mess:@%0t:result compare %d times",$time,total_cnt);
+        foreach(gldn_pttrn[i])
+            sm3_gldn_pttrn_reg[511 -32*i-:32] = gldn_pttrn[i];//do a copy to a ref array .hhh
+        
+        // if (sm3_gldn_pttrn_reg == sm3_pad_lst_blk_reg) begin
+        //     ok_cnt++;
+        //     $display("Mess:@%0t:check ok and ok %d times",$time,ok_cnt);
+        // end else begin
+        //     fail_cnt++;
+        //     $display("Err:@%0t:check fail and fail %d times",$time,fail_cnt);
+        //     $stop;
+        // end
 
-    cmpr_a1:assert (sm3_gldn_pttrn_reg == sm3_pad_lst_blk_reg) 
-    begin
-        ok_cnt++;
-        $display("Mess:@%0t:check ok and ok %d times",$time,ok_cnt);
+        cmpr_a1:assert (sm3_gldn_pttrn_reg == sm3_pad_lst_blk_reg) 
+        begin
+            ok_cnt++;
+            $display("Mess:@%0t:check ok and ok %d times",$time,ok_cnt);
+        end
+        else begin
+            fail_cnt++;
+            $display("Err:@%0t:check fail and fail %d times",$time,fail_cnt);
+            $stop;
+        end
     end
-    else begin
-        fail_cnt++;
-        $display("Err:@%0t:check fail and fail %d times",$time,fail_cnt);
-        $stop;
-    end
-end
+`endif
 
 
 endmodule

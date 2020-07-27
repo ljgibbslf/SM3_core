@@ -1,4 +1,6 @@
-run/sm3_core/*
-run/run_sim.log
-run/run.log
-run/vsim.wlf
+sim/run/sm3_core/*
+sim/run/run_sim.log
+sim/run/run.log
+sim/run/vsim.wlf
+sim/run/work/*
+sim/run/wlf*
