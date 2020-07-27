@@ -17,7 +17,7 @@
 
 //模块调试开关
 `ifdef  DESIGN_SIM
-    `define SM3_PAD_SIM_DBG
+    //`define SM3_PAD_SIM_DBG
     `define SM3_EXPND_SIM_DBG
     `define SM3_CMPRS_SIM_DBG
 `endif

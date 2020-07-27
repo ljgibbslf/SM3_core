@@ -21,9 +21,9 @@ sm3_expnd_core U_sm3_expnd_core(
     .clk                        (sm3if.clk                    ),
     .rst_n                      (sm3if.rst_n                  ),
 
-    .pad_inpt_d_i            ( sm3if.pad_inpt_d                    ),
-    .pad_inpt_vld_i          ( sm3if.pad_inpt_vld                  ),
-    .pad_inpt_lst_i          ( sm3if.pad_inpt_lst                  ),
+    .pad_inpt_d_i            ( sm3if.pad_otpt_d                    ),
+    .pad_inpt_vld_i          ( sm3if.pad_otpt_vld                  ),
+    .pad_inpt_lst_i          ( sm3if.pad_otpt_lst                  ),
     .expnd_otpt_ena_i        ( sm3if.expnd_otpt_ena                ),
 
     .pad_inpt_rdy_o          ( sm3if.pad_otpt_ena                  ),

@@ -407,16 +407,18 @@ assign                  pad_inpt_rdy_o           =  pad_inpt_d_inpt_rdy; //反�
 //调试打印信息 debug log
 `ifdef SM3_EXPND_SIM_DBG
     generate
-        always@(posedge expnd_otpt_vld_o) begin		
-            `ifdef SM3_INPT_DW_32
-                $display("LOG: EXPND WORD %32h|%32h", expnd_otpt_wj_o[31:0],expnd_otpt_wjj_o[31:0],);
-            `elsif SM3_INPT_DW_64
-                $display("LOG: EXPND WORD %32h|%32h|%32h|%32h"  ,expnd_otpt_wj_o[63:32]
-                                                                ,expnd_otpt_wj_o[31:0]
-                                                                ,expnd_otpt_wjj_o[63:32]
-                                                                ,expnd_otpt_wjj_o[31:0]
-                                                                );
-            `endif
+        always@(posedge clk) begin
+            if(expnd_otpt_vld_o)begin
+                `ifdef SM3_INPT_DW_32
+                    $display("LOG: EXPND WORD %32h | %32h", expnd_otpt_wj_o[31:0],expnd_otpt_wjj_o[31:0],);
+                `elsif SM3_INPT_DW_64
+                    $display("LOG: EXPND WORD %32h | %32h | %32h | %32h"  ,expnd_otpt_wj_o[63:32]
+                                                                    ,expnd_otpt_wj_o[31:0]
+                                                                    ,expnd_otpt_wjj_o[63:32]
+                                                                    ,expnd_otpt_wjj_o[31:0]
+                                                                    );
+                `endif    
+            end	
         end
     endgenerate
 `endif
