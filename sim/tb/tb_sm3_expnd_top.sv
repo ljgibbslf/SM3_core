@@ -57,7 +57,6 @@ initial begin
     sm3if.msg_inpt_vld          = 0;
     sm3if.msg_inpt_lst          = 0;
     // sm3if.pad_otpt_ena          = 1;//填充模块使能由扩展模块给出
-    sm3if.expnd_otpt_ena          = 1;//扩展模块使能置高
 
     #100;
     sm3if.rst_n                   =1;

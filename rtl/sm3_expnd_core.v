@@ -23,8 +23,6 @@ module sm3_expnd_core (
     input                       pad_inpt_vld_i,
     input                       pad_inpt_lst_i,
 
-    input                       expnd_otpt_ena_i,
-
     output                      pad_inpt_rdy_o,
 
     output  [`INPT_DW1:0]       expnd_otpt_wj_o,                    

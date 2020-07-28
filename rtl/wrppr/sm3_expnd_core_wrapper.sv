@@ -24,7 +24,6 @@ sm3_expnd_core U_sm3_expnd_core(
     .pad_inpt_d_i            ( sm3if.pad_otpt_d                    ),
     .pad_inpt_vld_i          ( sm3if.pad_otpt_vld                  ),
     .pad_inpt_lst_i          ( sm3if.pad_otpt_lst                  ),
-    .expnd_otpt_ena_i        ( sm3if.expnd_otpt_ena                ),
 
     .pad_inpt_rdy_o          ( sm3if.pad_otpt_ena                  ),
     .expnd_otpt_wj_o         ( sm3if.expnd_otpt_wj                 ),

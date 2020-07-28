@@ -28,7 +28,6 @@ logic [`INPT_DW1:0]         pad_otpt_d;
 logic                       pad_otpt_lst;
 logic                       pad_otpt_vld;
 
-logic                       expnd_otpt_ena;
 logic [`INPT_DW1:0]         expnd_otpt_wj; 
 logic [`INPT_DW1:0]         expnd_otpt_wjj; 
 logic                       expnd_otpt_lst;
@@ -45,7 +44,7 @@ modport MONITOR (
 );
 
 modport EXPND (
-    input clk,rst_n,expnd_otpt_ena,pad_otpt_d,pad_otpt_lst,pad_otpt_vld,
+    input clk,rst_n,pad_otpt_d,pad_otpt_lst,pad_otpt_vld,
     output expnd_otpt_wj,expnd_otpt_wjj,expnd_otpt_lst,expnd_otpt_vld,pad_otpt_ena
 );
 
