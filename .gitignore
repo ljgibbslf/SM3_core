@@ -4,3 +4,5 @@ sim/run/run.log
 sim/run/vsim.wlf
 sim/run/work/*
 sim/run/wlf*
+refer_rtl/sm3_rtl_v2/*
+refer_rtl/sm3_rtl_v2
