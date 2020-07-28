@@ -13,7 +13,8 @@ REM usage: run_sim.bat
 REM
 REM ****************************************************************************
 set bin_path=C:\modeltech64_10.5\win64
-call %bin_path%/vsim -do "do ../script/{run_sm3_expnd_tb.do}" -l run_sim.log
+REM call %bin_path%/vsim -do "do ../script/{run_sm3_expnd_tb.do}" -l run_sim.log
+call %bin_path%/vsim -do "do ../script/{run_sm3_cmprss_tb.do}" -l run_sim.log
 
 if "%errorlevel%"=="1" goto END
 if "%errorlevel%"=="0" goto SUCCESS
