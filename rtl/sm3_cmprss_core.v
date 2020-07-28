@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+`include "sm3_cfg.v"
 //////////////////////////////////////////////////////////////////////////////////
 // Author:        ljgibbs / lf_gibbs@163.com
 // Create Date: 2020/07/27 

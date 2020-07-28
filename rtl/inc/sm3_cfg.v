@@ -58,3 +58,8 @@
 
 //定义 SM3 字扩展模式-----------------------
 `define SM3_EXPND_PRE_LOAD_REG
+
+//定义 SM3 迭代压缩中的加法方式-----------------------
+//直接使用加法符，使工具推断
+`define SM3_CMPRSS_DIRECT_ADD
+`define SM3_CMPRSS_CSA_ADD
