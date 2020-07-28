@@ -19,7 +19,8 @@
 `ifdef  DESIGN_SIM
     //`define SM3_PAD_SIM_DBG
     `define SM3_EXPND_SIM_DBG
-    `define SM3_CMPRS_SIM_DBG
+    // `define SM3_CMPRS_SIM_DBG
+    // `define SM3_CMPRS_SIM_FILE_LOG
 `endif
 
 //定义 SM3 输入位宽------------------------
