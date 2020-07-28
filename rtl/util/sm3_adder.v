@@ -27,9 +27,9 @@ module sm3_adder(
     output  [31:0]      R   
     );
 
-    `define  USE_CSA
+    `define  SM3_CMPRSS_CSA_ADD
 
-    `ifdef USE_CSA
+    `ifdef SM3_CMPRSS_CSA_ADD
         //使用CSA加法器
         csa_adder_3i_32b U_csa_adder_3i_32b(
             .A(A),

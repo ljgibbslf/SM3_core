@@ -33,6 +33,9 @@ logic [`INPT_DW1:0]         expnd_otpt_wjj;
 logic                       expnd_otpt_lst;
 logic                       expnd_otpt_vld; 
 
+logic [255:0]               cmprss_otpt_res;
+logic                       cmprss_otpt_vld;
+
 modport PAD (
     input clk,rst_n,msg_inpt_d,msg_inpt_vld_byte,msg_inpt_vld,msg_inpt_lst,pad_otpt_ena,
     output msg_inpt_rdy,pad_otpt_d,pad_otpt_lst,pad_otpt_vld 
@@ -46,6 +49,11 @@ modport MONITOR (
 modport EXPND (
     input clk,rst_n,pad_otpt_d,pad_otpt_lst,pad_otpt_vld,
     output expnd_otpt_wj,expnd_otpt_wjj,expnd_otpt_lst,expnd_otpt_vld,pad_otpt_ena
+);
+
+modport CMPRSS (
+    input clk,rst_n,expnd_otpt_wj,expnd_otpt_wjj,expnd_otpt_lst,expnd_otpt_vld,
+    output cmprss_otpt_res,cmprss_otpt_vld
 );
 
 

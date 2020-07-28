@@ -4,17 +4,17 @@
 // Author:        ljgibbs / lf_gibbs@163.com
 // Create Date: 2020/07/26 
 // Design Name: sm3
-// Module Name: tb_sm3_expnd_top
+// Module Name: tb_sm3_cmprss_top
 // Description:
-//      SM3 填充-扩展模块 testbench
-//          测试 sm3_expnd_core 
+//      SM3 填充-扩展-迭代压缩模块 testbench
+//          测试 sm3_cmprss_core 
 // Dependencies: 
 //      inc/sm3_cfg.v
 // Revision:
 // Revision 0.01 - File Created
 // Revision 0.02 - Pass two SM3 example 
 //////////////////////////////////////////////////////////////////////////////////
-module tb_sm3_expnd_top (                 
+module tb_sm3_cmprss_top (                 
 );
 
 `ifdef SM3_INPT_DW_32
@@ -43,7 +43,12 @@ sm3_expnd_core_wrapper U_sm3_expnd_core_wrapper(
     sm3if
 );
 
-//monitor
+//sm3_cmprss with bus wrapper
+sm3_cmprss_core_wrapper U_sm3_cmprss_core_wrapper(
+    sm3if
+);
+
+//pad monitor
 sm3_pad_mntr U_sm3_pad_mntr(
     sm3if,
     gldn_pttrn
@@ -68,7 +73,7 @@ initial begin
         // sm3_inpt_byte_num = $urandom % (64*100) + 1;
 
         @(posedge sm3if.clk);
-        task_pad_inpt_gntr_exmpl1();
+        task_pad_inpt_gntr_exmpl0();
         @(posedge sm3if.clk);
     end
     
