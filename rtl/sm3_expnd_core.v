@@ -122,7 +122,7 @@ wire                    msg_lst_blk_flg_clr;
 //SM3填充消息输入反压逻辑，仅在 EXP_OTPT 状态下仅进行扩展，不提供输入
 assign                  pad_inpt_d_inpt_rdy = (  state == IDLE 
                                         ||    state == INPT_ORGN_5W
-                                        ||    state == INPT_OTPT     
+                                        ||    (state == INPT_OTPT && ~(nxt_state   ==  EXP_OTPT))//提前一个周期置低输入有效信号     
                                         ||    state == EXP_OTPT_PRE_INPT     
                                         ||    state == EXP_OTPT_FIN        
                                         ||    state == WAT_PRE_INPT_FIN    
