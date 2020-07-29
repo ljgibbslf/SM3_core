@@ -8,7 +8,7 @@
 // Module Name: sm3_if
 // Description:
 //      SM3 总线定义
-//          分为 pad/expnd/cmprss/monitor 类型
+//          分为 pad/expnd/cmprss/monitor/top 类型
 // Dependencies: 
 //      inc/sm3_cfg.v
 // Revision:
@@ -56,5 +56,9 @@ modport CMPRSS (
     output cmprss_otpt_res,cmprss_otpt_vld
 );
 
+modport TOP (
+    input clk,rst_n,msg_inpt_d,msg_inpt_vld_byte,msg_inpt_vld,msg_inpt_lst,
+    output msg_inpt_rdy,cmprss_otpt_res,cmprss_otpt_vld
+);
 
 endinterface //sm3_if
