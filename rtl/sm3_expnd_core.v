@@ -408,9 +408,9 @@ assign                  pad_inpt_rdy_o           =  pad_inpt_d_inpt_rdy; //ÂèçÂé
         always@(posedge clk) begin
             if(expnd_otpt_vld_o)begin
                 `ifdef SM3_INPT_DW_32
-                    $display("LOG: EXPND WORD %32h | %32h", expnd_otpt_wj_o[31:0],expnd_otpt_wjj_o[31:0],);
+                    $display("LOG: EXPND WORD %8h | %8h", expnd_otpt_wj_o[31:0],expnd_otpt_wjj_o[31:0],);
                 `elsif SM3_INPT_DW_64
-                    $display("LOG: EXPND WORD %32h | %32h | %32h | %32h"  ,expnd_otpt_wj_o[63:32]
+                    $display("LOG: EXPND WORD %8h | %8h | %8h | %8h"  ,expnd_otpt_wj_o[63:32]
                                                                     ,expnd_otpt_wj_o[31:0]
                                                                     ,expnd_otpt_wjj_o[63:32]
                                                                     ,expnd_otpt_wjj_o[31:0]

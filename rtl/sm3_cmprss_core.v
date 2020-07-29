@@ -165,8 +165,8 @@ end
             wjj_rnd_even_r  <=   32'd0;       
         end
         else begin
-            {wj_rnd_even_r,wj_rnd_odd_r}    <=   sm3_exp_wj_i;
-            {wjj_rnd_even_r,wjj_rnd_odd_r}  <=   sm3_exp_wjj_i;    
+            {wj_rnd_even_r,wj_rnd_odd_r}    <=   expnd_inpt_wj_i;
+            {wjj_rnd_even_r,wjj_rnd_odd_r}  <=   expnd_inpt_wjj_i;    
         end
     end
     
@@ -371,9 +371,9 @@ assign                      cmprss_otpt_res_o     =   sm3_res;
                 if(sm3_wj_wjj_valid_i)
                 begin
                     `ifdef SM3_CMPRS_SIM_FILE_LOG
-                        $fdisplay(file,"LOG: %32h ,%32h , %32h",reg_cmprss_round, sm3_exp_wj_i[31:0],sm3_exp_wjj_i[31:0]);
+                        $fdisplay(file,"LOG: %32h ,%32h , %32h",reg_cmprss_round, expnd_inpt_wj_i[31:0],expnd_inpt_wjj_i[31:0]);
                     `else
-                        $fdisplay("LOG: %32h ,%32h , %32h",reg_cmprss_round, sm3_exp_wj_i[31:0],sm3_exp_wjj_i[31:0]);
+                        $fdisplay("LOG: %32h ,%32h , %32h",reg_cmprss_round, expnd_inpt_wj_i[31:0],expnd_inpt_wjj_i[31:0]);
                     `endif
                     
                 end

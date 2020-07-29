@@ -18,7 +18,7 @@
 //模块调试开关-----------------------------
 `ifdef  DESIGN_SIM
     //`define SM3_PAD_SIM_DBG
-    //`define SM3_EXPND_SIM_DBG
+    `define SM3_EXPND_SIM_DBG
     // `define SM3_CMPRS_SIM_DBG
     // `define SM3_CMPRS_SIM_FILE_LOG
 `endif
@@ -27,8 +27,8 @@
 // `define C_MODEL_SELF_TEST
 
 //定义 SM3 输入位宽------------------------
-`define SM3_INPT_DW_32
-// `define SM3_INPT_DW_64
+// `define SM3_INPT_DW_32
+`define SM3_INPT_DW_64
 
 `ifdef SM3_INPT_DW_32
     `define     INPT_DW    32

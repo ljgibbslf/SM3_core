@@ -68,7 +68,7 @@ initial begin
         // sm3_inpt_byte_num = $urandom % (64*100) + 1;
 
         @(posedge sm3if.clk);
-        task_pad_inpt_gntr_exmpl1();
+        task_pad_inpt_gntr_exmpl0_64();
         @(posedge sm3if.clk);
     end
     
@@ -117,7 +117,7 @@ task automatic task_pad_inpt_gntr(
 endtask //automatic
 
 //产生填充模块输入，采用示例输入 'abc'
-task automatic task_pad_inpt_gntr_exmpl0();
+task automatic task_pad_inpt_gntr_exmpl0_32();
 
     
     sm3if.msg_inpt_vld      = 1'b1;
@@ -131,13 +131,45 @@ task automatic task_pad_inpt_gntr_exmpl0();
     
 endtask //automatic
 
+//产生填充模块输入，采用示例输入 'abc'
+task automatic task_pad_inpt_gntr_exmpl0_64();
+
+    
+    sm3if.msg_inpt_vld      = 1'b1;
+    sm3if.msg_inpt_lst      = 1'b1;
+    sm3if.msg_inpt_d        = 64'h6162_6300_0000_0000;
+    sm3if.msg_inpt_vld_byte = 8'b1110_0000;
+    @(posedge sm3if.clk);   
+    sm3if.msg_inpt_vld    = 1'b0;
+    sm3if.msg_inpt_lst    = 1'b0;
+    sm3if.msg_inpt_d      = DATA_INIT_PTTRN;
+    
+endtask //automatic
+
 //产生填充模块输入，采用示例输入 512bit 重复的 'abcd'
-task automatic task_pad_inpt_gntr_exmpl1();
+task automatic task_pad_inpt_gntr_exmpl1_32();
 
     sm3if.msg_inpt_vld      = 1'b1;
     sm3if.msg_inpt_d        = 32'h6162_6364;
     sm3if.msg_inpt_vld_byte = 4'b1111;
     repeat(15)begin
+        @(posedge sm3if.clk);   
+    end
+    sm3if.msg_inpt_lst      = 1'b1;
+    @(posedge sm3if.clk);   
+    sm3if.msg_inpt_vld    = 1'b0;
+    sm3if.msg_inpt_lst    = 1'b0;
+    sm3if.msg_inpt_d      = DATA_INIT_PTTRN;
+    
+endtask //automatic
+
+//产生填充模块输入，采用示例输入 512bit 重复的 'abcd'
+task automatic task_pad_inpt_gntr_exmpl1_64();
+
+    sm3if.msg_inpt_vld      = 1'b1;
+    sm3if.msg_inpt_d        = 64'h6162_6364_6162_6364;
+    sm3if.msg_inpt_vld_byte = 8'b1111_1111;
+    repeat(7)begin
         @(posedge sm3if.clk);   
     end
     sm3if.msg_inpt_lst      = 1'b1;
