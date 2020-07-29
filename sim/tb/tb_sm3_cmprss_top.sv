@@ -73,7 +73,7 @@ initial begin
         // sm3_inpt_byte_num = $urandom % (64*100) + 1;
 
         @(posedge sm3if.clk);
-        task_pad_inpt_gntr_exmpl0();
+        task_pad_inpt_gntr_exmpl1();
         @(posedge sm3if.clk);
     end
     

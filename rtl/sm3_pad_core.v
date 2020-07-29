@@ -208,7 +208,8 @@ always @(*) begin
         end
         INPT_PAD_LST_DATA: begin//根据最后一个输入数据的情况，确定填充策略
             if(inpt_vld_byte_cmplt) begin
-                if(inpt_wd_cntr[3:0] == 4'd0 && ~(inpt_wd_cntr == 16'd0))begin
+                // if(inpt_wd_cntr[3:0] == 4'd0 && ~(inpt_wd_cntr == 16'd0))begin
+                if(inpt_wd_cntr[3:0] == PAD_BLK_WD_NUM - INPT_WORD_NUM)begin
                     nxt_state   =   PAD_10_WAT_NEW_BLK;//填充以'1'为首的新块
                 end else begin//本块中填1
                     nxt_state   =   PAD_10_DATA;
@@ -299,6 +300,5 @@ assign                      pad_otpt_ena    =     state == PAD_10_DATA
 
 assign                      pad_otpt_vld_o      =   msg_inpt_vld_r1 || pad_otpt_ena;
 assign                      msg_inpt_rdy_o      =   pad_otpt_ena_i && (state == IDLE || state == INPT_DATA);
-    
 
 endmodule

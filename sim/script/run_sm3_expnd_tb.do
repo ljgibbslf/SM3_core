@@ -13,16 +13,17 @@
 
 vlib sm3_core
 
-vlog -64 -incr -work sm3_core  "+incdir+../rtl/inc" \
-"../rtl/*.v" \
+vlog -64 -incr -work sm3_core  "+incdir+../../rtl/inc" \
+"../../rtl/*.v" \
+"../../rtl/util/*.v" \
 
-vlog -64 -incr -sv -work sm3_core  "+incdir+../rtl/inc" \
-"../rtl/*.v"  \
-"../rtl/if/*.sv" \
-"../rtl/wrppr/*.sv" \
+vlog -64 -incr -sv -work sm3_core  "+incdir+../../rtl/inc" \
+"../../rtl/if/*.sv" \
+"../../rtl/wrppr/*.sv" \
 "../tb/*.sv" \
+"../sim_rtl/*.sv" \
 
-vsim -voptargs="+acc" -t 1ps   -L unisims_ver -L unimacro_ver -L secureip -lib sm3_core sm3_core.tb_sm3_cmprss_top;
+vsim -voptargs="+acc" -t 1ps   -L unisims_ver -L unimacro_ver -L secureip -lib sm3_core sm3_core.tb_sm3_expnd_top;
 
 add wave *
 

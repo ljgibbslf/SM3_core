@@ -1,10 +1,10 @@
 #////////////////////////////////////////////////////////////////////////////////
 # Author:        ljgibbs / lf_gibbs@163.com
-# Create Date: 2020/07/26 
+# Create Date: 2020/07/28 
 # Design Name: sm3
-# Module Name: run_sm3_expnd_tb
+# Module Name: run_sm3_cmprss_tb
 # Description:
-#      运行 sm3 扩展模块 tb 的 Modelsim 脚本
+#      运行 sm3 迭代压缩模块 tb 的 Modelsim 脚本
 #          - 使用相对路径
 #          - 使用库 sm3_core
 # Revision:
@@ -13,17 +13,17 @@
 
 vlib sm3_core
 
-vlog -64 -incr -work sm3_core  "+incdir+../rtl/inc" \
-"../rtl/*.v" \
+vlog -64 -incr -work sm3_core  "+incdir+../../rtl/inc" \
+"../../rtl/*.v" \
+"../../rtl/util/*.v" \
 
-vlog -64 -incr -sv -work sm3_core  "+incdir+../rtl/inc" \
-"../rtl/*.v"  \
-"../rtl/if/*.sv" \
-"../rtl/wrppr/*.sv" \
-"../rtl/util/*.sv" \
+vlog -64 -incr -sv -work sm3_core  "+incdir+../../rtl/inc" \
+"../../rtl/if/*.sv" \
+"../../rtl/wrppr/*.sv" \
 "../tb/*.sv" \
+"../sim_rtl/*.sv" \
 
-vsim -voptargs="+acc" -t 1ps   -L unisims_ver -L unimacro_ver -L secureip -lib sm3_core sm3_core.tb_sm3_expnd_top;
+vsim -voptargs="+acc" -t 1ps   -L unisims_ver -L unimacro_ver -L secureip -lib sm3_core sm3_core.tb_sm3_cmprss_top;
 
 add wave *
 

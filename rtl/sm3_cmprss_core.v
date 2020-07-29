@@ -109,12 +109,13 @@ wire                inpt_wrd_of_blk_cntr_clr;
 
 //管理tj寄存器
 always @(posedge clk or negedge rst_n) begin
-    if(~rst_n) begin
+    if(~rst_n |cmprss_blk_res_finish) begin
         reg_tj          <=  32'h79cc4519;
     end
     else if(sm3_wj_wjj_vld_r)begin
         if(reg_cmprss_round == 6'd16 - INPT_WORD_NUM)
             reg_tj          <=  32'h9d8a7a87;
+        
         else begin
             `ifdef SM3_INPT_DW_32
                 reg_tj          <=  {reg_tj[30:0],reg_tj[31]};
@@ -138,8 +139,8 @@ always @(posedge clk or negedge rst_n) begin
         sm3_wj_wjj_lst_r    <=   1'b0;        
     end
     else begin
-        sm3_wj_wjj_vld_r    <=   sm3_wj_wjj_valid_i;
-        sm3_wj_wjj_lst_r    <=   sm3_wj_wjj_last_i;        
+        sm3_wj_wjj_vld_r    <=   expnd_inpt_vld_i;
+        sm3_wj_wjj_lst_r    <=   expnd_inpt_lst_i;       
     end
 end
 
@@ -150,8 +151,8 @@ end
             wjj_rnd_r       <=   32'd0;       
         end
         else begin
-            wj_rnd_r        <=   sm3_exp_wj_i;
-            wjj_rnd_r       <=   sm3_exp_wjj_i;     
+            wj_rnd_r        <=   expnd_inpt_wj_i;
+            wjj_rnd_r       <=   expnd_inpt_wjj_i;     
         end
     end
     
@@ -381,4 +382,4 @@ assign                      cmprss_otpt_res_o     =   sm3_res;
     endgenerate
 `endif
 
-`endif
+endmodule

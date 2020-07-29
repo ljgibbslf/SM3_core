@@ -420,5 +420,4 @@ assign                  pad_inpt_rdy_o           =  pad_inpt_d_inpt_rdy; //åå
         end
     endgenerate
 `endif
-
 endmodule

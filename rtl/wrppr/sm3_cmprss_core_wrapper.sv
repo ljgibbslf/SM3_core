@@ -17,7 +17,7 @@ module sm3_cmprss_core_wrapper (
     sm3_if.CMPRSS sm3if
 );
 
-sm3_expnd_core sm3_cmprss_core(
+sm3_cmprss_core U_sm3_cmprss_core(
     .clk                        (sm3if.clk                    ),
     .rst_n                      (sm3if.rst_n                  ),
 
