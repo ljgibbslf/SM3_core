@@ -80,6 +80,7 @@ wire                        pad_otpt_ena;
 
 //统计最后一个数据的有效字节数  cnt vld byte of the last inpt data
 reg  [3:0]                  inpt_vld_byte_cnt;
+reg  [3:0]                  inpt_vld_byte_cnt_lat;
 wire                        inpt_vld_byte_cmplt;                                 
 
 integer i;
@@ -155,6 +156,16 @@ end
 
 assign                  inpt_vld_byte_cmplt =   inpt_vld_byte_cnt == 4 * INPT_WORD_NUM;
 
+//在last信号，锁存 inpt_vld_byte_cnt
+always @(posedge clk or negedge rst_n) begin
+    if(~rst_n) begin
+        inpt_vld_byte_cnt_lat   <=  4'd0;
+    end
+    else if(msg_inpt_lst_r1)begin
+        inpt_vld_byte_cnt_lat   <=  inpt_vld_byte_cnt;
+    end
+end
+
 //输入字数统计
 always @(posedge clk or negedge rst_n) begin
     if(~rst_n) begin
@@ -168,7 +179,7 @@ end
 assign                  inpt_wd_cntr_add    = msg_inpt_vld_r1;
 assign                  inpt_wd_cntr_clr    = pad_otpt_lst_o;
 
-assign                  inpt_byte_cntr      =   {inpt_wd_cntr,2'd0} + inpt_vld_byte_cnt - {INPT_WORD_NUM,2'd0};
+assign                  inpt_byte_cntr      =   {inpt_wd_cntr,2'd0} + inpt_vld_byte_cnt_lat - {INPT_WORD_NUM,2'd0};
 assign                  inpt_bit_cntr       =   {inpt_byte_cntr,3'd0};
 
 //填充字数统计
@@ -220,7 +231,14 @@ always @(*) begin
             else if(inpt_wd_cntr[3:0] < PAD_BLK_WD_NUM_WTHT_LEN - INPT_WORD_NUM)
                 nxt_state   =   PAD_00_DATA;
             else if(inpt_wd_cntr[3:0] > PAD_BLK_WD_NUM_WTHT_LEN - INPT_WORD_NUM)
-                nxt_state   =   ADD_BLK_PAD_00;
+                `ifdef SM3_INPT_DW_32
+                    if(inpt_wd_cntr[3:0] == PAD_BLK_WD_NUM_WTHT_LEN)
+                        nxt_state   =   ADD_BLK_PAD_00;//（32位专用）为当前块填充最后一个全0双字
+                    else
+                        nxt_state   =   PAD_00_WAT_NEW_BLK;
+                `elsif SM3_INPT_DW_64
+                    nxt_state   =   PAD_00_WAT_NEW_BLK;
+                `endif
         end
         PAD_10_DATA: begin//填充由1个1和若干个0组成的数据
             if(inpt_wd_cntr[3:0] < PAD_BLK_WD_NUM_WTHT_LEN - INPT_WORD_NUM)//14-2(64b)
@@ -228,10 +246,14 @@ always @(*) begin
             else if(inpt_wd_cntr[3:0] == PAD_BLK_WD_NUM_WTHT_LEN - INPT_WORD_NUM)
                 nxt_state   =   PAD_LEN_H;//填充长度
             else begin //>PAD_BLK_WD_NUM_WTHT_LEN - INPT_WORD_NUM
-                if(inpt_wd_cntr[3:0] == PAD_BLK_WD_NUM_WTHT_LEN - 1'b1)
-                    nxt_state   =   ADD_BLK_PAD_00;//（32位专用）
-                else
+                `ifdef SM3_INPT_DW_32
+                    if(inpt_wd_cntr[3:0] == PAD_BLK_WD_NUM_WTHT_LEN)
+                        nxt_state   =   ADD_BLK_PAD_00;//（32位专用）为当前块填充最后一个全0双字
+                    else
+                        nxt_state   =   PAD_00_WAT_NEW_BLK;
+                `elsif SM3_INPT_DW_64
                     nxt_state   =   PAD_00_WAT_NEW_BLK;
+                `endif
             end
         end
         ADD_BLK_PAD_00:begin//在新增的填充块之前补一个0字（32位专用）
