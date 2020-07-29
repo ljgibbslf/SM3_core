@@ -159,7 +159,7 @@ task automatic task_rndm_inpt_cmpr_cmodel(
     
     //打印返回的摘要值
     foreach(res[i])
-        $display("SV array af %d:%x", i,res[i]);
+        $display("C model output %d:%x", i,res[i]);
 endtask //automatic
 
 

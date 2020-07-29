@@ -1,9 +1,11 @@
 { signal: [
     { name: "clk",         wave: "p.....|..." },
-    { name: "Data",        wave: "x.345x|=.x", data: ["head", "body", "tail", "data"] },
-    { name: "Request",     wave: "0.1..0|1.0" },
-    {},
-    {},
-    {},
-    { name: "Acknowledge", wave: "1.....|01." }
+    { name: "rst_n",       wave: "01....|..." },
+    { name: "msg_inpt_d",        wave: "x.335x|x..", data: ["Data", "Data", "Data"] },
+    { name: "msg_inpt_vld_byte",        wave: "x.224x|x..", data: ["4'hF", "4'hF", "4'h8"] },
+    { name: "msg_inpt_vld",       wave: "01...0|..." },
+    { name: "msg_inpt_lst",       wave: "0...10|..." },
+    { name: "msg_inpt_rdy",       wave: "1....0|.1." },
+    { name: "cmprss_otpt_res",        wave: "x....x|x2x", data: ["Res"] },
+    { name: "cmprss_otpt_vld", wave: "0.....|.10" }
   ]}
