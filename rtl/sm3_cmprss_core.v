@@ -368,12 +368,12 @@ assign                      cmprss_otpt_res_o     =   sm3_res;
     generate
         if(1) begin
             always@(*) begin		
-                if(sm3_wj_wjj_valid_i)
+                if(cmprss_otpt_vld_o)
                 begin
                     `ifdef SM3_CMPRS_SIM_FILE_LOG
-                        $fdisplay(file,"LOG: %32h ,%32h , %32h",reg_cmprss_round, expnd_inpt_wj_i[31:0],expnd_inpt_wjj_i[31:0]);
+                        $fdisplay(file,"LOG: res : %64h",cmprss_otpt_res_o);
                     `else
-                        $fdisplay("LOG: %32h ,%32h , %32h",reg_cmprss_round, expnd_inpt_wj_i[31:0],expnd_inpt_wjj_i[31:0]);
+                        $display("LOG: res : %64h",cmprss_otpt_res_o);
                     `endif
                     
                 end

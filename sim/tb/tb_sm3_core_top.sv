@@ -13,22 +13,24 @@
 // Revision:
 // Revision 0.01 - File Created
 // Revision 0.02 - Pass random test with c model
+// Revision 0.03 - Pass random test with c model (64bit)
 //////////////////////////////////////////////////////////////////////////////////
 module tb_sm3_core_top (                 
 );
 
 `ifdef SM3_INPT_DW_32
     localparam [1:0]            INPT_WORD_NUM               =   2'd1;
+    bit [31:0]                  urand_num;
 `elsif SM3_INPT_DW_64
     localparam [1:0]            INPT_WORD_NUM               =   2'd2;
+    bit [63:0]                  urand_num;
 `endif
 
 //import c reference function
 import "DPI-C" function void sm3_c(input int len,input bit[7:0] data[],output bit[31:0] res[]);
 
 int i;
-bit [31:0]  urand_num;
-bit [7:0] data[1050];
+bit [7:0] data[1050];//TODO buff length limit the inpt data length 
 bit [31:0] res[8];
 
 int stat_test_cnt;
@@ -48,7 +50,7 @@ initial begin
     sm3if.clk                     = 0;
     sm3if.rst_n                   = 0;
     sm3if.msg_inpt_d            = 0;
-    sm3if.msg_inpt_vld_byte     = 4'b1111;
+    sm3if.msg_inpt_vld_byte     = 0;
     sm3if.msg_inpt_vld          = 0;
     sm3if.msg_inpt_lst          = 0;
 
@@ -64,7 +66,7 @@ initial begin
         `ifdef C_MODEL_SELF_TEST
             sm3_inpt_byte_num = 64;
         `else
-            sm3_inpt_byte_num = ($urandom % 128 + 1 + 4);
+            sm3_inpt_byte_num = ($urandom % 128 + 1 + 8);//确保数据至少有2个周期
         `endif
 
         @(posedge sm3if.clk);
@@ -97,16 +99,33 @@ task automatic task_rndm_inpt_cmpr_cmodel(
     // 初始化数组同时产生逻辑激励
     for(i = 0 ; i < data_inpt_clk_num - 1 ; i++)begin
         sm3if.msg_inpt_vld          = 1;
-        sm3if.msg_inpt_vld_byte     = 4'b1111;
+        `ifdef SM3_INPT_DW_32
+            sm3if.msg_inpt_vld_byte     = 4'b1111;
+        `elsif SM3_INPT_DW_64
+            sm3if.msg_inpt_vld_byte     = 8'b1111_1111;
+        `endif
+        
 
         `ifdef C_MODEL_SELF_TEST
             urand_num =  32'h61626364;
         `else
-            urand_num =  ($urandom);
+            `ifdef SM3_INPT_DW_32
+                urand_num =  ($urandom);
+            `elsif SM3_INPT_DW_64
+                urand_num =  {$urandom,$urandom};
+            `endif
+            
         `endif
 
-        {data[4*i],data[4*i+1],data[4*i+2],data[4*i+3]} = urand_num;
-        sm3if.msg_inpt_d = urand_num;
+        `ifdef SM3_INPT_DW_32
+            {data[4*i],data[4*i+1],data[4*i+2],data[4*i+3]} = urand_num;
+            sm3if.msg_inpt_d = urand_num;
+        `elsif SM3_INPT_DW_64
+            {data[8*i],data[8*i+1],data[8*i+2],data[8*i+3],
+             data[8*i+4],data[8*i+1+4],data[8*i+2+4],data[8*i+3+4]} = urand_num;
+            sm3if.msg_inpt_d = urand_num;
+        `endif
+        
         @(posedge sm3if.clk);
         // $display("SV array b4 %d:%x", i,urand_num);
         sm3if.msg_inpt_vld = 0;
@@ -121,10 +140,19 @@ task automatic task_rndm_inpt_cmpr_cmodel(
     `ifdef C_MODEL_SELF_TEST
         urand_num =  32'h61626364;
     `else
-        urand_num =  ($urandom);
+        `ifdef SM3_INPT_DW_32
+            urand_num =  ($urandom);
+        `elsif SM3_INPT_DW_64
+            urand_num =  {$urandom,$urandom};
+        `endif
+        
     `endif
-    
-    {data[4*i],data[4*i+1],data[4*i+2],data[4*i+3]} = urand_num;
+    `ifdef SM3_INPT_DW_32
+        {data[4*i],data[4*i+1],data[4*i+2],data[4*i+3]} = urand_num;
+    `elsif SM3_INPT_DW_64
+        {data[8*i],data[8*i+1],data[8*i+2],data[8*i+3],
+         data[8*i+4],data[8*i+1+4],data[8*i+2+4],data[8*i+3+4]} = urand_num;
+    `endif
 
     sm3if.msg_inpt_lst = 1;
 
@@ -221,7 +249,7 @@ function automatic void lst_data_gntr_64(
     ref logic [63:0]  lst_data, 
     ref logic [ 7:0]  lst_vld_byte,
     input bit [3:0]   unalign_byte_num,
-    input logic [31:0]rndm_data
+    input logic [63:0]rndm_data
     );
         lst_vld_byte =                  unalign_byte_num == 3'd0 ? 8'b1111_1111
                                     :   unalign_byte_num == 3'd1 ? 8'b1000_0000

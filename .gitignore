@@ -5,3 +5,4 @@ sim/run/vsim.wlf
 sim/run/work/*
 sim/run/wlf*
 
+run_sim.log
