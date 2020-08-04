@@ -12,7 +12,8 @@
 //      inc/sm3_cfg.v
 // Revision:
 // Revision 0.01 - File Created
-// Revision 0.02 - Pass two SM3 example 
+// Revision 0.02 - Pass two SM3 example (32bit)
+// Revision 0.03 - Pass two SM3 example (64bit)
 //////////////////////////////////////////////////////////////////////////////////
 module tb_sm3_expnd_top (                 
 );
