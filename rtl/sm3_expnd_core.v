@@ -342,11 +342,20 @@ always @(posedge clk or negedge rst_n) begin
     end
     `ifdef SM3_EXPND_PRE_LOAD_REG
         else if(word_buff_rpd_shft_ena)begin : buff_rpd_shift //快速移位阶段
-            word_buff[15]                   <=      pad_inpt_d_i;      
-            word_buff[14]                   <=      word_buff_nb_pre[3];      
-            word_buff[13]                   <=      word_buff_nb_pre[2];      
-            word_buff[12]                   <=      word_buff_nb_pre[1];      
-            word_buff[11]                   <=      word_buff_nb_pre[0];      
+            `ifdef SM3_INPT_DW_32
+                word_buff[15]                   <=      pad_inpt_d_i;      
+                word_buff[14]                   <=      word_buff_nb_pre[3];      
+                word_buff[13]                   <=      word_buff_nb_pre[2];      
+                word_buff[12]                   <=      word_buff_nb_pre[1];      
+                word_buff[11]                   <=      word_buff_nb_pre[0]; 
+            `elsif SM3_INPT_DW_64
+                {word_buff[14],word_buff[15]}   <=      pad_inpt_d_i;      
+                word_buff[13]                   <=      word_buff_nb_pre[2];      
+                word_buff[12]                   <=      word_buff_nb_pre[3];      
+                word_buff[11]                   <=      word_buff_nb_pre[0];      
+                word_buff[10]                   <=      word_buff_nb_pre[1];  
+            `endif
+                 
         end
     `endif
 end
@@ -372,10 +381,18 @@ assign                  word_buff_shft_ena      =   (state == IDLE && pad_inpt_v
         end
         else if(word_buff_nb_pre_shft_ena)begin : pre_buff_shift // wnb0 <- wnb1....wnb3 <- input
             integer i;
-            for ( i = PRE_BUFF_N - 1 ; i > 0 ; i = i - 1) begin
-                word_buff_nb_pre[i-1]                  <=      word_buff_nb_pre[i];    
-            end
-            word_buff_nb_pre[PRE_BUFF_N - 1]                   <=      pad_inpt_d_i;      
+            `ifdef SM3_INPT_DW_32
+                for ( i = PRE_BUFF_N - 1 ; i > 0 ; i = i - 1) begin
+                    word_buff_nb_pre[i-1]                  <=      word_buff_nb_pre[i];    
+                end
+                word_buff_nb_pre[PRE_BUFF_N - 1]                   <=      pad_inpt_d_i;    
+            `elsif SM3_INPT_DW_64
+                for ( i = (PRE_BUFF_N / INPT_WORD_NUM)- 1 ; i > 0 ; i = i - 1) begin
+                    word_buff_nb_pre[2*i-1]                    <=      word_buff_nb_pre[2*i+1];    
+                    word_buff_nb_pre[2*(i-1)]                  <=      word_buff_nb_pre[2*i];    
+                end
+                {word_buff_nb_pre[PRE_BUFF_N - 1], word_buff_nb_pre[PRE_BUFF_N - 2]}                  <=      pad_inpt_d_i;    
+            `endif
         end
     end
 
@@ -410,7 +427,7 @@ assign                  pad_inpt_rdy_o           =  pad_inpt_d_inpt_rdy; //反�
                 `ifdef SM3_INPT_DW_32
                     $display("LOG: EXPND WORD %8h | %8h", expnd_otpt_wj_o[31:0],expnd_otpt_wjj_o[31:0],);
                 `elsif SM3_INPT_DW_64
-                    $display("LOG: EXPND WORD wj[63:22]:%8h | wj[31:0]:%8h | wjj[63:22]:%8h | wjj[31:0]:%8h"  
+                    $display("LOG: EXPND WORD wj[63:32]:%8h | wj[31:0]:%8h | wjj[63:32]:%8h | wjj[31:0]:%8h"  
                                                                     ,expnd_otpt_wj_o[63:32]
                                                                     ,expnd_otpt_wj_o[31:0]
                                                                     ,expnd_otpt_wjj_o[63:32]
