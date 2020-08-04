@@ -277,7 +277,7 @@ assign                  word_wj_expand              =   word_wj_expand_tmp_2 ^ w
     assign                  word_wj_expand_tmp_2_w1        =   {word_wj_expand_tmp_1_w1 ^ {word_wj_expand_tmp_1_w1[16:0],word_wj_expand_tmp_1_w1[31:17]} 
                                                                                     ^ {word_wj_expand_tmp_1_w1[8:0],word_wj_expand_tmp_1_w1[31:9]}};
 
-    assign                  word_wj_expand_w1              =   word_wj_expand_tmp_2 ^ word_buff[11] ^ {word_buff[4][24:0],word_buff[4][31:25]};
+    assign                  word_wj_expand_w1              =   word_wj_expand_tmp_2_w1 ^ word_buff[11] ^ {word_buff[4][24:0],word_buff[4][31:25]};
 `endif
 
 `ifdef SM3_INPT_DW_32
@@ -410,7 +410,8 @@ assign                  pad_inpt_rdy_o           =  pad_inpt_d_inpt_rdy; //ÂèçÂé
                 `ifdef SM3_INPT_DW_32
                     $display("LOG: EXPND WORD %8h | %8h", expnd_otpt_wj_o[31:0],expnd_otpt_wjj_o[31:0],);
                 `elsif SM3_INPT_DW_64
-                    $display("LOG: EXPND WORD %8h | %8h | %8h | %8h"  ,expnd_otpt_wj_o[63:32]
+                    $display("LOG: EXPND WORD wj[63:22]:%8h | wj[31:0]:%8h | wjj[63:22]:%8h | wjj[31:0]:%8h"  
+                                                                    ,expnd_otpt_wj_o[63:32]
                                                                     ,expnd_otpt_wj_o[31:0]
                                                                     ,expnd_otpt_wjj_o[63:32]
                                                                     ,expnd_otpt_wjj_o[31:0]
