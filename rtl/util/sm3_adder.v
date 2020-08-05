@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "sm3_cfg.v"
 //////////////////////////////////////////////////////////////////////////////////
 // Company:     SHU
 // Engineer:    lf
@@ -26,8 +27,6 @@ module sm3_adder(
     input   [31:0]      C,
     output  [31:0]      R   
     );
-
-    `define  SM3_CMPRSS_CSA_ADD
 
     `ifdef SM3_CMPRSS_CSA_ADD
         //使用CSA加法器

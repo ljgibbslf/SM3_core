@@ -65,4 +65,5 @@
 //定义 SM3 迭代压缩中的加法方式-----------------------
 //直接使用加法符，使工具推断
 `define SM3_CMPRSS_DIRECT_ADD
+//显式例化 CSA 加法器 在 SM3_CMPRSS_DIRECT_ADD 未定义时有效
 `define SM3_CMPRSS_CSA_ADD
