@@ -27,8 +27,10 @@
 // `define C_MODEL_SELF_TEST
 
 //定义 SM3 输入位宽------------------------
-// `define SM3_INPT_DW_32
-`define SM3_INPT_DW_64
+`define SM3_INPT_DW_32
+`ifndef  SM3_INPT_DW_32
+    `define SM3_INPT_DW_64
+`endif
 
 `ifdef SM3_INPT_DW_32
     `define     INPT_DW    32

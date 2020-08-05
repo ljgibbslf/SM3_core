@@ -23,6 +23,7 @@ SM3算法采用Merkle-Damgård结构，消息分组长度512比特，摘要结�
 
 - 输入消息长度按字节对齐；消息长度支持标准规定的最长消息长度：(2^64-1) 比特
 - 输入与内部运算位宽可为 32/64 比特 
+  - 64 比特版本中，迭代压缩采用**二度展开**算法
 - 单个消息块运算时钟周期为 65 (32 bit) / 33 (64 bit)
 - 最大吞吐(FPGA : //TODO ASIC: //TODO)
 
@@ -78,12 +79,30 @@ SM3_core 目前提供了一个基于 Modelsim 与 Windows 10 的测试平台，�
 
 运行 sim/run/run_sim.bat 脚本启动测试平台，该脚本
 
-- 通过环境变量获取 Modelsim 路径（实际通过 License 变量：LM_LICENSE_FILE）
+- 通过环境变量获取 Modelsim 路径（实际通过 License 的环境变量：LM_LICENSE_FILE 获取的 modelsim 路径）
 - 目前已经测试的 Modelsim 版本与环境：10.5 on Win10
+
+运行 trouble shooting：
+
+//TODO 若运行遇到问题，欢迎提出 issue
 
 #### 实现
 
-- FPGA：Virtex-7 with Vivado 18.3 //TODO
+- FPGA：
+
+  Virtex-7 (xc7vx330t) with Vivado 18.3 
+
+  默认综合与实现策略
+
+  |                  | 32bit        | 64bit          |
+  | ---------------- | ------------ | -------------- |
+  | 频率 MHz         | 238.1        | 126.6          |
+  | 吞吐 Mbps        | 1875.5       | 1963.7         |
+  | 运行周期 ns      | 273（65clk） | 260.8（33clk） |
+  | 资源 LUTs/Slices | 1224/418     | 1569/530       |
+
+  
+
 - ASIC:  //TODO
 
 ### 未来演进
@@ -94,7 +113,14 @@ SM3_core 目前提供了一个基于 Modelsim 与 Windows 10 的测试平台，�
 - 支持 AXI-stream 总线接口
 - 提供更完善的文档支持
 
+### 更新
 
+| 版本 | 更新时间  | 更新内容                     |
+| ---- | --------- | ---------------------------- |
+| v0.1 | 2020.7.29 | First release                |
+| v0.2 | 2020.8.5  | 1.增加对 64 比特总线的支持   |
+|      |           | 2.在 FPGA 平台分析性能与资源 |
+|      |           | 3.修正 BUG                   |
 
 ### 
 
