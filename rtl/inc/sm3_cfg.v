@@ -27,7 +27,7 @@
 // `define C_MODEL_SELF_TEST
 
 //定义 SM3 输入位宽------------------------
-`define SM3_INPT_DW_32
+// `define SM3_INPT_DW_32
 `ifndef  SM3_INPT_DW_32
     `define SM3_INPT_DW_64
 `endif
@@ -66,6 +66,8 @@
 
 //定义 SM3 迭代压缩中的加法方式-----------------------
 //直接使用加法符，使工具推断
-`define SM3_CMPRSS_DIRECT_ADD
+//`define SM3_CMPRSS_DIRECT_ADD
 //显式例化 CSA 加法器 在 SM3_CMPRSS_DIRECT_ADD 未定义时有效
-`define SM3_CMPRSS_CSA_ADD
+`ifndef  SM3_CMPRSS_DIRECT_ADD
+    `define SM3_CMPRSS_CSA_ADD
+`endif
