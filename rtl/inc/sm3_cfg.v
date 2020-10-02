@@ -71,3 +71,15 @@
 `ifndef  SM3_CMPRSS_DIRECT_ADD
     `define SM3_CMPRSS_CSA_ADD
 `endif
+
+//定义仿真器 define simulator
+// Modelsim_10_5(windows), default 
+// EpicSim (Linux)
+//`define EPICSIM
+`ifndef EPICSIM
+    `define MODELSIM_10_5
+`endif
+
+//定义是否使用 C 语言参考模型(DPI)
+//define using C reference model or not
+//`define C_MODEL_ENABLE

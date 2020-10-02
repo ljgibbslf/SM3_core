@@ -14,6 +14,7 @@
 // Revision 0.01 - File Created
 // Revision 0.02 - Pass random test with c model
 // Revision 0.03 - Pass random test with c model (64bit)
+// Revision 0.03 - Add more macro control
 //////////////////////////////////////////////////////////////////////////////////
 module tb_sm3_core_top (                 
 );
@@ -26,8 +27,10 @@ module tb_sm3_core_top (
     bit [63:0]                  urand_num;
 `endif
 
+`ifdef C_MODEL_ENABLE
 //import c reference function
 import "DPI-C" function void sm3_c(input int len,input bit[7:0] data[],output bit[31:0] res[]);
+`endif
 
 int i;
 bit [7:0] data[1050];//TODO buff length limit the inpt data length 
@@ -70,7 +73,11 @@ initial begin
         `endif
 
         @(posedge sm3if.clk);
-        task_rndm_inpt_cmpr_cmodel(sm3_inpt_byte_num);
+        `ifdef C_MODEL_ENABLE
+            task_rndm_inpt_cmpr_cmodel(sm3_inpt_byte_num);
+        `else
+            task_pad_inpt_gntr_exmpl0_32(); 
+        `endif
         @(posedge sm3if.clk);
     end
     
@@ -79,6 +86,7 @@ end
 
 always #5 sm3if.clk = ~sm3if.clk; 
 
+`ifdef C_MODEL_ENABLE
 //产生填充模块输入，随机输入，并与 c 语言参考模型比较
 task automatic task_rndm_inpt_cmpr_cmodel(
     input bit [60:0] byte_num
@@ -189,7 +197,7 @@ task automatic task_rndm_inpt_cmpr_cmodel(
     foreach(res[i])
         $display("C model output %d:%x", i,res[i]);
 endtask //automatic
-
+`endif
 
 //产生填充模块输入，采用示例输入 'abc' 32bit 输入
 task automatic task_pad_inpt_gntr_exmpl0_32();
