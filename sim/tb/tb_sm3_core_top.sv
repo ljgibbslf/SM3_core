@@ -16,8 +16,7 @@
 // Revision 0.03 - Pass random test with c model (64bit)
 // Revision 0.03 - Add more macro control
 //////////////////////////////////////////////////////////////////////////////////
-module tb_sm3_core_top (                 
-);
+module tb_sm3_core_top;
 
 `ifdef SM3_INPT_DW_32
     localparam [1:0]            INPT_WORD_NUM               =   2'd1;
@@ -46,7 +45,19 @@ sm3_if sm3if();
 
 //sm3_core_top
 sm3_core_top U_sm3_core_top(
+`ifdef EPICSIM
+    .clk                (sm3if.clk              ),
+    .rst_n              (sm3if.rst_n            ),
+    .msg_inpt_d         (sm3if.msg_inpt_d       ),
+    .msg_inpt_vld_byte  (sm3if.msg_inpt_vld_byte),
+    .msg_inpt_vld       (sm3if.msg_inpt_vld     ),
+    .msg_inpt_lst       (sm3if.msg_inpt_lst     ),
+    .msg_inpt_rdy       (sm3if.msg_inpt_rdy     ),
+    .cmprss_otpt_res    (sm3if.cmprss_otpt_res  ),
+    .cmprss_otpt_vld    (sm3if.cmprss_otpt_vld  )
+`else
     sm3if
+`endif
 );
 
 initial begin
@@ -59,6 +70,22 @@ initial begin
 
     #100;
     sm3if.rst_n                   =1;
+
+    `ifdef SM3_INPT_DW_32
+        $display("LOG: run SM3 example under 32bit mode.");
+    `elsif SM3_INPT_DW_64
+        $display("LOG: run SM3 example under 64bit mode.");
+    `endif
+
+    `ifdef C_MODEL_ENABLE
+        $display("LOG: C reference model enable.");
+    `endif
+
+    `ifdef VCD_DUMP_ENABLE
+        $display("LOG: vcd wave dump enable.");
+        $dumpfile("../run_epicsim/sm3_example.vcd");
+        $dumpvars(1, tb_sm3_core_top.U_sm3_core_top);
+    `endif
 
     while (1) begin
         //complete random
@@ -76,7 +103,11 @@ initial begin
         `ifdef C_MODEL_ENABLE
             task_rndm_inpt_cmpr_cmodel(sm3_inpt_byte_num);
         `else
-            task_pad_inpt_gntr_exmpl0_32(); 
+            `ifdef SM3_INPT_DW_32
+                task_pad_inpt_gntr_exmpl0_32(); 
+            `elsif SM3_INPT_DW_64
+                $display("ERR: example must be run under 32bit mode!");
+            `endif
         `endif
         @(posedge sm3if.clk);
     end
@@ -200,7 +231,7 @@ endtask //automatic
 `endif
 
 //产生填充模块输入，采用示例输入 'abc' 32bit 输入
-task automatic task_pad_inpt_gntr_exmpl0_32();
+task automatic task_pad_inpt_gntr_exmpl0_32;
 
     
     sm3if.msg_inpt_vld      = 1'b1;
@@ -215,7 +246,7 @@ task automatic task_pad_inpt_gntr_exmpl0_32();
 endtask //automatic
 
 //产生填充模块输入，采用示例输入 512bit 重复的 'abcd' 32bit 输入
-task automatic task_pad_inpt_gntr_exmpl1_32();
+task automatic task_pad_inpt_gntr_exmpl1_32;
 
     sm3if.msg_inpt_vld      = 1'b1;
     sm3if.msg_inpt_d        = 32'h6162_6364;
@@ -232,6 +263,7 @@ task automatic task_pad_inpt_gntr_exmpl1_32();
 endtask //automatic
 
 //32bit 生成最后一个周期数据
+`ifdef C_MODEL_ENABLE
 `ifdef SM3_INPT_DW_32
 function automatic void lst_data_gntr_32(
     ref logic [31:0]  lst_data, 
@@ -279,7 +311,7 @@ function automatic void lst_data_gntr_64(
                                     :   rndm_data;
     
 endfunction
-`endif
-
+`endif// SM3_INPT_DW_32/64
+`endif//C_MODEL_ENABLE
 
 endmodule

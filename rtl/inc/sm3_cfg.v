@@ -82,4 +82,8 @@
 
 //定义是否使用 C 语言参考模型(DPI)
 //define using C reference model or not
-//`define C_MODEL_ENABLE
+`define C_MODEL_ENABLE
+
+//定义是否 dump 波形
+//define dump wave in VCD or not
+//`define VCD_DUMP_ENABLE
